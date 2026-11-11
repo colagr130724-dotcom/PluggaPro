@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PluggaPro – SO-träning</title>
+<style>
+:root{--blue:#246fca;--blue2:#eaf3ff;--ink:#18263b;--muted:#68768b;--bg:#f4f7fc;--line:#e1e8f2;--green:#168451}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,Arial,sans-serif}
+header{background:linear-gradient(120deg,#155db2,#4a9be8);color:#fff;padding:27px 18px}
+.wrap{max-width:900px;margin:auto;padding:0 16px}.brand{font-size:30px;font-weight:850;letter-spacing:-1px}.tag{opacity:.92;margin-top:4px}
+main{padding:22px 0 48px}.panel{background:#fff;border:1px solid var(--line);border-radius:17px;padding:20px;margin:14px 0;box-shadow:0 5px 18px #193b640c}
+h2{margin:0 0 12px;font-size:21px}.muted{color:var(--muted);font-size:14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+button{border:0;border-radius:10px;padding:11px 15px;background:var(--blue);color:white;font-weight:700;cursor:pointer}
+button.secondary{background:var(--blue2);color:#205c9d}button.danger{background:#fff0f0;color:#a52d2d}
+button:disabled{opacity:.45;cursor:not-allowed}
+input,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;margin:6px 0 12px;background:#fff;color:var(--ink)}
+textarea{min-height:86px;resize:vertical}.cardword{background:#f0f6ff;border:1px solid #dceaff;border-radius:14px;padding:28px 16px;text-align:center;min-height:145px;display:flex;flex-direction:column;justify-content:center}
+.cardword h3{font-size:28px;margin:0 0 12px}.cardword p{margin:0;line-height:1.5}
+.listitem{padding:12px 0;border-top:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between}
+.listitem strong{display:block}.listitem small{display:block;color:var(--muted);margin-top:4px;line-height:1.4}
+.hidden{display:none!important}.feedback{padding:10px;border-radius:10px;background:#f2f7ff;line-height:1.5}.score{color:var(--green);font-weight:800}
+@media(max-width:560px){.brand{font-size:26px}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="brand">📚 PluggaPro</div><div class="tag">Träna SO-begrepp på ditt sätt</div></div></header>
+<main class="wrap">
+<section class="panel">
+<h2>Din SO-träning</h2>
+<p class="muted">Lägg in begrepp från skolan och öva på precis det du behöver kunna. Dina listor sparas i den här webbläsaren på den här enheten.</p>
+<div class="tabs">
+<button class="secondary" data-mode="cards">🃏 Flashcards</button>
+<button class="secondary" data-mode="quiz">🧠 Flervalsquiz</button>
+<button class="secondary" data-mode="write">✍️ Skriv svar</button>
+</div>
+<div id="cards">
+<div class="muted" id="counter"></div>
+<div class="cardword"><h3 id="prompt"></h3><p id="answer" class="hidden"></p></div>
+<div class="tabs"><button id="reveal">Visa förklaring</button><button class="secondary" id="prev">← Föregående</button><button class="secondary" id="next">Nästa →</button></div>
+</div>
+<div id="quiz" class="hidden">
+<div class="muted" id="quizCounter"></div><h3 id="quizQuestion"></h3><div id="quizOptions"></div>
+<p id="quizFeedback" class="feedback" aria-live="polite"></p><button id="quizNext" class="hidden">Nästa fråga →</button>
+</div>
+<div id="write" class="hidden">
+<div class="muted" id="writeCounter"></div><h3 id="writeTerm"></h3>
+<textarea id="writeAnswer" placeholder="Skriv vad begreppet betyder..."></textarea>
+<button id="checkWrite">Visa facit</button><p id="writeFeedback" class="feedback hidden"></p>
+<div class="tabs"><button class="secondary" id="writeNext">Nästa begrepp →</button></div>
+</div>
+</section>
+<section class="panel">
+<h2>➕ Lägg till ett begrepp</h2>
+<label for="term">Begrepp</label><input id="term" placeholder="Till exempel: Riksdag">
+<label for="definition">Förklaring</label><textarea id="definition" placeholder="Skriv en förklaring med egna ord..."></textarea>
+<button id="add">Lägg till i min lista</button><p id="addMessage" class="muted" aria-live="polite"></p>
+</section>
+<section class="panel">
+<h2>📖 Mina begrepp <span class="muted" id="count"></span></h2><div id="wordList"></div>
+</section>
+</main>
+<script>
+const starter=[
+ {term:"Demokrati",definition:"Ett styrelseskick där folket får vara med och bestämma, till exempel genom att rösta."},
+ {term:"Diktatur",definition:"Ett styrelseskick där en person eller en liten grupp har den mesta makten och folket har begränsat inflytande."},
+ {term:"Riksdag",definition:"Sveriges folkvalda församling. Riksdagen beslutar bland annat om lagar och statens budget."}
+];
+let words;try{words=JSON.parse(localStorage.getItem("pluggapro_words"))||starter}catch(e){words=starter}
+let index=0,quizIndex=0,quizScore=0;
+const $=id=>document.getElementById(id);
+function save(){try{localStorage.setItem("pluggapro_words",JSON.stringify(words))}catch(e){}render()}
+function render(){
+ index=Math.max(0,Math.min(index,words.length-1));
+ $("count").textContent=`(${words.length})`;
+ $("counter").textContent=words.length?`Begrepp ${index+1} av ${words.length}`:"Din lista är tom – lägg till ditt första begrepp!";
+ $("prompt").textContent=words[index]?.term||"Ditt första begrepp";
+ $("answer").textContent=words[index]?.definition||"";
+ $("answer").classList.add("hidden");$("reveal").textContent="Visa förklaring";
+ $("prev").disabled=index<=0;$("next").disabled=index>=words.length-1;
+ $("wordList").innerHTML="";
+ words.forEach((w,i)=>{
+  const div=document.createElement("div");div.className="listitem";
+  const info=document.createElement("div"),strong=document.createElement("strong"),small=document.createElement("small");
+  strong.textContent=w.term;small.textContent=w.definition;info.append(strong,small);
+  const del=document.createElement("button");del.className="danger";del.textContent="Ta bort";
+  del.onclick=()=>{words.splice(i,1);index=0;save();showWrite()};
+  div.append(info,del);$("wordList").append(div);
+ });
+}
+function setMode(mode){
+ ["cards","quiz","write"].forEach(id=>$(id).classList.toggle("hidden",id!==mode));
+ document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("secondary",b.dataset.mode!==mode));
+ if(mode==="quiz")startQuiz();if(mode==="write")showWrite();
+}
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+$("reveal").onclick=()=>{$("answer").classList.toggle("hidden");$("reveal").textContent=$("answer").classList.contains("hidden")?"Visa förklaring":"Dölj förklaring"};
+$("prev").onclick=()=>{index--;render()};$("next").onclick=()=>{index++;render()};
+$("add").onclick=()=>{
+ const term=$("term").value.trim(),definition=$("definition").value.trim();
+ if(!term||!definition){$("addMessage").textContent="Fyll i både begrepp och förklaring.";return}
+ words.push({term,definition});$("term").value="";$("definition").value="";
+ index=words.length-1;$("addMessage").textContent="Begreppet har lagts till!";save();
+};
+function startQuiz(){quizIndex=0;quizScore=0;nextQuiz()}
+function nextQuiz(){
+ $("quizFeedback").textContent="";$("quizFeedback").classList.remove("score");$("quizNext").classList.add("hidden");
+ if(words.length<2){$("quizCounter").textContent="";$("quizQuestion").textContent="Lägg till minst två begrepp för att spela quiz.";$("quizOptions").innerHTML="";return}
+ if(quizIndex>=words.length){
+  $("quizCounter").textContent="Quiz klart";$("quizQuestion").textContent=`Du fick ${quizScore} av ${words.length} rätt!`;
+  $("quizOptions").innerHTML="";$("quizNext").textContent="Spela igen";$("quizNext").classList.remove("hidden");$("quizNext").onclick=startQuiz;return;
+ }
+ const current=words[quizIndex],others=words.filter((_,i)=>i!==quizIndex).sort(()=>Math.random()-.5).slice(0,3);
+ const opts=[current,...others].sort(()=>Math.random()-.5);
+ $("quizCounter").textContent=`Fråga ${quizIndex+1} av ${words.length}`;$("quizQuestion").textContent=`Vad betyder "${current.term}"?`;$("quizOptions").innerHTML="";
+ opts.forEach(o=>{
+  const b=document.createElement("button");b.className="secondary";b.style.display="block";b.style.width="100%";b.style.margin="7px 0";b.style.textAlign="left";b.textContent=o.definition;
+  b.onclick=()=>{
+   document.querySelectorAll("#quizOptions button").forEach(x=>x.disabled=true);
+   if(o===current){quizScore++;$("quizFeedback").textContent="Rätt! Snyggt jobbat!";$("quizFeedback").classList.add("score")}
+   else $("quizFeedback").textContent="Inte riktigt. Rätt svar är: "+current.definition;
+   $("quizNext").textContent="Nästa fråga →";$("quizNext").classList.remove("hidden");
+   $("quizNext").onclick=()=>{quizIndex++;nextQuiz()};
+  };
+  $("quizOptions").append(b);
+ });
+}
+function showWrite(){
+ $("writeCounter").textContent=words.length?`Begrepp ${index+1} av ${words.length}`:"Din lista är tom";
+ $("writeTerm").textContent=words[index]?.term||"Lägg till ett begrepp";
+ $("writeAnswer").value="";$("writeFeedback").textContent="";$("writeFeedback").classList.add("hidden");
+}
+$("checkWrite").onclick=()=>{if(words[index]){$("writeFeedback").textContent="Facit: "+words[index].definition;$("writeFeedback").classList.remove("hidden")}};
+$("writeNext").onclick=()=>{if(words.length){index=(index+1)%words.length;showWrite();render()}};
+render();
+</script>
+</body></html>
