@@ -1,117 +1,1100 @@
-
 <!DOCTYPE html>
 <html lang="sv">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PluggaPro</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{--blue:#2878d0;--light:#edf5ff;--bg:#f5f8fd;--ink:#1c2c42;--muted:#718096;--line:#e3eaf3}
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--ink)}
-header{background:linear-gradient(120deg,#155db2,#59a5ed);color:white;padding:28px 18px}.wrap{max-width:950px;margin:auto;padding:0 16px}
-.brand{font-size:32px;font-weight:900}header p{margin:7px 0 0;opacity:.9}
-nav{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}button{border:0;border-radius:10px;padding:12px 16px;background:var(--blue);color:white;font-weight:bold;cursor:pointer}
-button.secondary{background:var(--light);color:#205c9d}button.danger{background:#fff0f0;color:#b33}button:disabled{opacity:.5}
-.panel{background:white;padding:22px;border-radius:17px;margin:16px 0;border:1px solid var(--line);box-shadow:0 5px 18px #193b640c}
-h2{margin-top:0}input,textarea,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin:7px 0 14px;font:inherit;background:white}
-textarea{min-height:120px;resize:vertical}label{font-weight:bold;font-size:14px}.muted{color:var(--muted);font-size:14px}.hidden{display:none!important}
-.item{border-top:1px solid var(--line);padding:14px 0;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.item small{display:block;color:var(--muted);margin-top:5px}.card{background:var(--light);padding:30px 15px;border-radius:15px;text-align:center;margin:15px 0}
-.card h3{font-size:25px}.option{display:block;width:100%;text-align:left;margin:9px 0;background:var(--light);color:#205c9d}.option:hover{background:#dcecff}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:var(--light);padding:17px 8px;border-radius:12px;text-align:center}
-.stat strong{font-size:25px;color:var(--blue);display:block}.stat small{color:var(--muted)}
-.challenge{border:1px solid var(--line);border-radius:13px;padding:16px;margin:12px 0}.challenge.done{background:#f0fff5;border-color:#b9e8c8}
-.status{font-size:13px;padding:7px 10px;background:#eef5ff;border-radius:9px;display:inline-block}
-@media(max-width:550px){.stats{grid-template-columns:1fr 1fr}.brand{font-size:27px}.panel{padding:16px}.item{align-items:flex-start;flex-direction:column}}
+:root {
+  --blue:#2878d0;
+  --light:#edf5ff;
+  --bg:#f5f8fd;
+  --ink:#1c2c42;
+  --muted:#718096;
+  --line:#e3eaf3;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+}
+header {
+  background:linear-gradient(120deg,#155db2,#59a5ed);
+  color:white;
+  padding:28px 18px;
+}
+.wrap {max-width:950px;margin:auto;padding:0 16px}
+.brand {font-size:32px;font-weight:900}
+header p {margin:7px 0 0;opacity:.9}
+nav {display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}
+button {
+  border:0;
+  border-radius:10px;
+  padding:12px 16px;
+  background:var(--blue);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  margin:3px 2px;
+}
+button.secondary {background:var(--light);color:#205c9d}
+button.danger {background:#fff0f0;color:#b33}
+button:disabled {opacity:.5;cursor:not-allowed}
+.panel {
+  background:white;
+  padding:22px;
+  border-radius:17px;
+  margin:16px 0;
+  border:1px solid var(--line);
+  box-shadow:0 5px 18px #193b640c;
+}
+h2 {margin-top:0}
+input,textarea,select {
+  width:100%;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  margin:7px 0 14px;
+  font:inherit;
+  background:white;
+}
+textarea {min-height:120px;resize:vertical}
+label {font-weight:bold;font-size:14px}
+.muted {color:var(--muted);font-size:14px}
+.hidden {display:none!important}
+.item {
+  border-top:1px solid var(--line);
+  padding:14px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.item small {display:block;color:var(--muted);margin-top:5px}
+.card {
+  background:var(--light);
+  padding:30px 15px;
+  border-radius:15px;
+  text-align:center;
+  margin:15px 0;
+}
+.card h3 {font-size:25px}
+.option {
+  display:block;
+  width:100%;
+  text-align:left;
+  margin:9px 0;
+  background:var(--light);
+  color:#205c9d;
+}
+.option:hover {background:#dcecff}
+.stats {display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat {
+  background:var(--light);
+  padding:17px 8px;
+  border-radius:12px;
+  text-align:center;
+}
+.stat strong {
+  font-size:25px;
+  color:var(--blue);
+  display:block;
+}
+.stat small {color:var(--muted)}
+.status {
+  padding:12px;
+  background:var(--light);
+  border-radius:10px;
+  margin:10px 0;
+}
+.good {color:green}
+.bad {color:#b33}
+@media(max-width:550px) {
+  .stats {grid-template-columns:1fr 1fr}
+  .brand {font-size:27px}
+  .panel {padding:16px}
+  .item {align-items:flex-start;flex-direction:column}
+}
 </style>
 </head>
+
 <body>
-<header><div class="wrap"><div class="brand">📚 PluggaPro</div><p>Din personliga studieplattform</p></div></header>
+
+<header>
+  <div class="wrap">
+    <div class="brand">📚 PluggaPro</div>
+    <p>Din personliga studieplattform</p>
+  </div>
+</header>
+
 <main class="wrap">
-<section class="panel" id="accountPanel">
-<h2>🔐 Ditt konto</h2>
-<div id="signedOut">
-<p class="muted">Skriv din e-postadress så skickar vi en säker inloggningslänk till dig.</p>
-<label>Din e-postadress</label><input id="email" type="email" placeholder="namn@gmail.com" autocomplete="email">
-<button id="loginButton" onclick="sendLoginLink()">Skicka inloggningslänk</button>
-<p id="authMessage" class="muted" aria-live="polite"></p>
+
+<!-- KONTO -->
+<div class="panel">
+  <h2>👤 Ditt konto</h2>
+  <div id="loggedOut">
+    <p class="muted">Logga in för att spara dina uppgifter och samla poäng.</p>
+    <label>Din e-postadress</label>
+    <input id="email" type="email" placeholder="namn@exempel.se">
+    <button onclick="login()">Skicka inloggningslänk</button>
+    <p id="loginMessage" class="muted"></p>
+  </div>
+
+  <div id="loggedIn" class="hidden">
+    <p id="accountEmail"></p>
+    <label>Ditt användarnamn på topplistan</label>
+    <input id="usernameInput" maxlength="20" placeholder="Välj ett användarnamn">
+    <button onclick="saveUsername()">Spara användarnamn</button>
+    <button class="secondary" onclick="logout()">Logga ut</button>
+    <p id="accountMessage" class="muted"></p>
+  </div>
+  <p id="cloudStatus" class="muted">Inte inloggad.</p>
 </div>
-<div id="signedIn" class="hidden">
-<p>Inloggad som <strong id="userEmail"></strong></p>
-<p class="muted">Dina uppgifter synkas automatiskt till ditt konto.</p>
-<button class="secondary" onclick="logout()">Logga ut</button>
-</div>
-<p class="muted" id="syncStatus">Inte inloggad – uppgifterna sparas bara i den här webbläsaren.</p>
-</section>
+
 <nav>
-<button onclick="showPage('home')">🏠 Hem</button><button onclick="showPage('homework')">📝 Mina läxor</button>
-<button onclick="showPage('quiz')">🧠 Skapa quiz</button><button onclick="showPage('cards')">🃏 Flashcards</button>
-<button onclick="showPage('progress')">🏆 Framsteg</button><button onclick="showPage('challenges')">🎯 Utmaningar</button>
+  <button onclick="showPage('home')">🏠 Hem</button>
+  <button onclick="showPage('homework')">📝 Mina läxor</button>
+  <button onclick="showPage('quiz')">🧠 Skapa quiz</button>
+  <button onclick="showPage('saved')">📚 Mina quiz</button>
+  <button onclick="showPage('cards')">🃏 Flashcards</button>
+  <button onclick="showPage('progress')">🏆 Framsteg</button>
+  <button onclick="showPage('leaderboard')">🌍 Topplista</button>
 </nav>
-<section id="home" class="page"><div class="panel"><h2>Välkommen till PluggaPro! 👋</h2>
-<p class="muted">Här kan du samla dina läxor, träna inför prov och testa dina kunskaper.</p>
-<div class="stats"><div class="stat"><strong id="homeTasks">0</strong><small>Aktiva läxor</small></div><div class="stat"><strong id="homeWords">0</strong><small>Begrepp</small></div><div class="stat"><strong id="homeDone">0</strong><small>Klart</small></div></div></div>
-<div class="panel"><h2>🚀 Snabbstart</h2><button onclick="showPage('homework')">Lägg till en läxa</button> <button onclick="showPage('quiz')">Skapa ett quiz</button></div></section>
-<section id="homework" class="page hidden"><div class="panel"><h2>📝 Mina läxor</h2>
-<label>Läxans namn</label><input id="taskName" placeholder="Exempelvis SO-prov"><label>Ämne</label>
-<select id="taskSubject"><option>SO</option><option>NO</option><option>Matte</option><option>Svenska</option><option>Engelska</option><option>Historia</option><option>Annat</option></select>
-<label>Deadline eller provdatum</label><input id="taskDate" type="date"><label>Vad ska du kunna?</label><textarea id="taskInfo" placeholder="Skriv vad du behöver träna på..."></textarea>
-<button onclick="addTask()">➕ Lägg till läxa</button><p id="taskMessage" class="muted"></p></div><div class="panel"><h2>📚 Dina läxor</h2><div id="taskList"></div></div></section>
-<section id="quiz" class="page hidden"><div class="panel"><h2>🧠 Skapa quiz från anteckningar</h2>
-<p class="muted">Klistra in anteckningar. Skriv ett begrepp per rad med en förklaring efter kolon.</p>
-<textarea id="notes" placeholder="Demokrati: Folket får vara med och bestämma.&#10;Diktatur: En person eller grupp har makten.&#10;Riksdag: Sveriges folkvalda församling."></textarea>
-<button onclick="createQuiz()">✨ Skapa quiz</button><p id="quizMessage" class="muted"></p></div>
-<div class="panel"><h2 id="questionTitle">Ditt quiz</h2><p id="questionText" class="muted">Lägg in anteckningar för att börja!</p><div id="options"></div><p id="feedback" aria-live="polite"></p><button id="nextQuestion" class="hidden">Nästa fråga →</button></div></section>
-<section id="cards" class="page hidden"><div class="panel"><h2>🃏 Flashcards</h2><p id="cardCounter" class="muted"></p><div class="card"><h3 id="cardTerm">Dina begrepp</h3><p id="cardDefinition" class="hidden"></p></div>
-<button onclick="revealCard()">Visa förklaring</button> <button class="secondary" onclick="changeCard(-1)">← Föregående</button> <button class="secondary" onclick="changeCard(1)">Nästa →</button></div>
-<div class="panel"><h2>✍️ Lägg till egna begrepp</h2><label>Begrepp</label><input id="newTerm" placeholder="Begrepp"><label>Förklaring</label><textarea id="newDefinition" placeholder="Vad betyder begreppet?"></textarea><button onclick="addWord()">Lägg till begrepp</button><p id="wordMessage" class="muted"></p></div></section>
-<section id="progress" class="page hidden"><div class="panel"><h2>🏆 Mina framsteg</h2><div class="stats">
-<div class="stat"><strong id="totalQuiz">0</strong><small>Quizfrågor rätt</small></div><div class="stat"><strong id="totalTasks">0</strong><small>Läxor klara</small></div><div class="stat"><strong id="totalWords">0</strong><small>Begrepp sparade</small></div></div>
-<p class="muted">Fortsätt träna och samla nya resultat!</p></div></section>
-<section id="challenges" class="page hidden"><div class="panel"><h2>🎯 Dagens utmaningar</h2><div class="stats">
-<div class="stat"><strong id="points">0</strong><small>Poäng</small></div><div class="stat"><strong id="dailyDone">0/2</strong><small>Dagens klara</small></div><div class="stat"><strong id="streak">0</strong><small>Dagars svit</small></div></div>
-<div id="challengeList"></div><p class="muted">Gör ett quiz och markera en läxa som klar för att samla dagens poäng.</p></div></section>
+
+<!-- HEM -->
+<section id="home" class="page">
+  <div class="panel">
+    <h2>Välkommen till PluggaPro! 👋</h2>
+    <p class="muted">Här kan du samla dina läxor, träna inför prov och testa dina kunskaper.</p>
+    <div class="stats">
+      <div class="stat"><strong id="homeTasks">0</strong><small>Aktiva läxor</small></div>
+      <div class="stat"><strong id="homeWords">0</strong><small>Begrepp</small></div>
+      <div class="stat"><strong id="homeDone">0</strong><small>Klart</small></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>🚀 Snabbstart</h2>
+    <button onclick="showPage('homework')">Lägg till en läxa</button>
+    <button onclick="showPage('quiz')">Skapa ett quiz</button>
+    <button onclick="showPage('saved')">Visa mina sparade quiz</button>
+  </div>
+
+  <div class="panel">
+    <h2>🎯 Dagens utmaningar</h2>
+    <p>Slutför dagens utmaningar och samla poäng!</p>
+    <div id="challengeList"></div>
+    <h3>⭐ Dina poäng: <span id="challengePoints">0</span></h3>
+    <p class="muted">Du får 20 poäng för varje utmaning du klarar per dag.</p>
+  </div>
+</section>
+
+<!-- LÄXOR -->
+<section id="homework" class="page hidden">
+  <div class="panel">
+    <h2>📝 Mina läxor</h2>
+    <label>Läxans namn</label>
+    <input id="taskName" placeholder="Exempelvis SO-prov">
+
+    <label>Ämne</label>
+    <select id="taskSubject">
+      <option>SO</option>
+      <option>NO</option>
+      <option>Matte</option>
+      <option>Svenska</option>
+      <option>Engelska</option>
+      <option>Historia</option>
+      <option>Annat</option>
+    </select>
+
+    <label>Deadline eller provdatum</label>
+    <input id="taskDate" type="date">
+
+    <label>Vad ska du kunna?</label>
+    <textarea id="taskInfo" placeholder="Skriv vad du behöver träna på..."></textarea>
+
+    <button onclick="addTask()">➕ Lägg till läxa</button>
+    <p id="taskMessage" class="muted"></p>
+  </div>
+
+  <div class="panel">
+    <h2>📚 Dina läxor</h2>
+    <div id="taskList"></div>
+  </div>
+</section>
+
+<!-- SKAPA QUIZ -->
+<section id="quiz" class="page hidden">
+  <div class="panel">
+    <h2>🧠 Skapa quiz från anteckningar</h2>
+    <p class="muted">
+      Klistra in dina anteckningar här. Skriv gärna ett begrepp per rad
+      med en förklaring efter kolon.
+    </p>
+
+    <label>Namn på quizet</label>
+    <input id="quizName" placeholder="Exempelvis SO – Lag och rätt">
+
+    <label>Dina anteckningar</label>
+    <textarea id="notes" placeholder="Demokrati: Folket får vara med och bestämma.
+Diktatur: En person eller grupp har makten.
+Riksdag: Sveriges folkvalda församling."></textarea>
+
+    <button onclick="createQuiz()">✨ Skapa och spara quiz</button>
+    <p id="quizMessage" class="muted"></p>
+  </div>
+
+  <div class="panel">
+    <h2 id="questionTitle">Ditt quiz</h2>
+    <p id="questionText" class="muted">Skapa ett quiz för att börja!</p>
+    <div id="options"></div>
+    <p id="feedback" aria-live="polite"></p>
+    <button id="nextQuestion" class="hidden" onclick="nextQuiz()">Nästa fråga →</button>
+  </div>
+</section>
+
+<!-- SPARADE QUIZ -->
+<section id="saved" class="page hidden">
+  <div class="panel">
+    <h2>📚 Mina sparade quiz</h2>
+    <p class="muted">Här sparas dina quiz så att du kan träna på dem igen när du vill.</p>
+    <div id="savedQuizList"></div>
+    <button onclick="showPage('quiz')">➕ Skapa ett nytt quiz</button>
+  </div>
+</section>
+
+<!-- FLASHCARDS -->
+<section id="cards" class="page hidden">
+  <div class="panel">
+    <h2>🃏 Flashcards</h2>
+    <p id="cardCounter" class="muted"></p>
+    <div class="card">
+      <h3 id="cardTerm">Dina begrepp</h3>
+      <p id="cardDefinition" class="hidden"></p>
+    </div>
+    <button onclick="revealCard()">Visa förklaring</button>
+    <button class="secondary" onclick="changeCard(-1)">← Föregående</button>
+    <button class="secondary" onclick="changeCard(1)">Nästa →</button>
+  </div>
+
+  <div class="panel">
+    <h2>✍️ Lägg till egna begrepp</h2>
+    <label>Begrepp</label>
+    <input id="newTerm" placeholder="Begrepp">
+    <label>Förklaring</label>
+    <textarea id="newDefinition" placeholder="Vad betyder begreppet?"></textarea>
+    <button onclick="addWord()">Lägg till begrepp</button>
+    <p id="wordMessage" class="muted"></p>
+  </div>
+</section>
+
+<!-- FRAMSTEG -->
+<section id="progress" class="page hidden">
+  <div class="panel">
+    <h2>🏆 Mina framsteg</h2>
+    <div class="stats">
+      <div class="stat"><strong id="totalQuiz">0</strong><small>Quizfrågor rätt</small></div>
+      <div class="stat"><strong id="totalTasks">0</strong><small>Läxor klara</small></div>
+      <div class="stat"><strong id="totalWords">0</strong><small>Begrepp sparade</small></div>
+    </div>
+    <h3>⭐ Poäng: <span id="progressPoints">0</span></h3>
+    <p class="muted">Fortsätt träna och samla nya resultat!</p>
+  </div>
+</section>
+
+<!-- TOPPLISTA -->
+<section id="leaderboard" class="page hidden">
+  <div class="panel">
+    <h2>🌍 PluggaPro – Topplistan</h2>
+    <p class="muted">Här ser du poängen för alla användare på PluggaPro.</p>
+    <button onclick="loadLeaderboard()">🔄 Uppdatera topplistan</button>
+    <div id="leaderboardList">Laddar topplistan...</div>
+  </div>
+</section>
+
 </main>
+
 <script>
-const SUPABASE_URL="https://gkvajwgcdeowodyrrcnh.supabase.co";
-const SUPABASE_KEY="sb_publishable_3M9OcxpHbcGkaEWbPlZ3BA_YiPdrO5W";
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const $=id=>document.getElementById(id);
-function load(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch(e){return fallback}}
-let words=load("pp_words",[]),tasks=load("pp_tasks",[]),totalCorrect=Number(localStorage.getItem("pp_correct"))||0;
-let challenge=load("pp_challenges",{points:0,completedDate:"",completed:[],lastStudyDate:"",streak:0});
-let questions=[],qIndex=0,score=0,cardIndex=0,currentUser=null,cloudReady=false,saveTimer=null;
-function today(){return new Date().toISOString().slice(0,10)}
-function saveLocal(){localStorage.setItem("pp_words",JSON.stringify(words));localStorage.setItem("pp_tasks",JSON.stringify(tasks));localStorage.setItem("pp_correct",String(totalCorrect));localStorage.setItem("pp_challenges",JSON.stringify(challenge))}
-function appData(){return {words,tasks,totalCorrect,challenge}}
-function applyData(d){words=Array.isArray(d.words)?d.words:[];tasks=Array.isArray(d.tasks)?d.tasks:[];totalCorrect=Number(d.totalCorrect)||0;challenge=d.challenge||{points:0,completedDate:"",completed:[],lastStudyDate:"",streak:0};saveLocal();update();renderCard();renderChallenges()}
-function save(){saveLocal();update();scheduleCloudSave()}
-function scheduleCloudSave(){if(!currentUser||!cloudReady)return;clearTimeout(saveTimer);$("syncStatus").textContent="Sparar till ditt konto…";saveTimer=setTimeout(saveCloud,700)}
-async function saveCloud(){if(!currentUser||!cloudReady)return;const {error}=await db.from("user_data").upsert({user_id:currentUser.id,data:appData(),updated_at:new Date().toISOString()},{onConflict:"user_id"});$("syncStatus").textContent=error?"Kunde inte synka just nu: "+error.message:"✅ Allt är sparat på ditt konto."}
-async function loadCloud(){if(!currentUser)return;$("syncStatus").textContent="Hämtar dina sparade uppgifter…";const {data,error}=await db.from("user_data").select("data").eq("user_id",currentUser.id).maybeSingle();if(error){$("syncStatus").textContent="Kunde inte hämta data: "+error.message;return}
-if(data&&data.data){applyData(data.data);$("syncStatus").textContent="✅ Dina uppgifter har hämtats från ditt konto."}else{cloudReady=true;await saveCloud();return}cloudReady=true}
-async function sendLoginLink(){const email=$("email").value.trim();if(!email){$("authMessage").textContent="Skriv din e-postadress först.";return}
-$("loginButton").disabled=true;$("authMessage").textContent="Skickar inloggningslänk…";
-const {error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
-$("loginButton").disabled=false;$("authMessage").textContent=error?"Det gick inte att skicka mejlet: "+error.message:"Klart! Kolla din inkorg och skräppost. Klicka på länken i mejlet för att logga in."}
-async function logout(){await db.auth.signOut();currentUser=null;cloudReady=false;$("signedIn").classList.add("hidden");$("signedOut").classList.remove("hidden");$("syncStatus").textContent="Utloggad – uppgifterna finns kvar lokalt på den här enheten."}
-db.auth.onAuthStateChange(async(event,session)=>{if(session?.user){currentUser=session.user;$("signedOut").classList.add("hidden");$("signedIn").classList.remove("hidden");$("userEmail").textContent=currentUser.email;await loadCloud()}else{currentUser=null;cloudReady=false;$("signedIn").classList.add("hidden");$("signedOut").classList.remove("hidden")}});
-async function initAuth(){const {data}=await db.auth.getSession();if(data.session){currentUser=data.session.user;$("signedOut").classList.add("hidden");$("signedIn").classList.remove("hidden");$("userEmail").textContent=currentUser.email;await loadCloud()}}
-function showPage(page){document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));$(page).classList.remove("hidden");update();if(page==="cards")renderCard();if(page==="challenges")renderChallenges()}
-function update(){$("homeTasks").textContent=tasks.filter(t=>!t.done).length;$("homeWords").textContent=words.length;$("homeDone").textContent=tasks.filter(t=>t.done).length;$("totalQuiz").textContent=totalCorrect;$("totalTasks").textContent=tasks.filter(t=>t.done).length;$("totalWords").textContent=words.length;renderTasks();renderChallenges()}
-function addTask(){const name=$("taskName").value.trim();if(!name){$("taskMessage").textContent="Skriv vad läxan heter!";return}tasks.push({name,subject:$("taskSubject").value,date:$("taskDate").value,info:$("taskInfo").value,done:false});$("taskName").value="";$("taskDate").value="";$("taskInfo").value="";$("taskMessage").textContent="Läxan har sparats!";save()}
-function renderTasks(){$("taskList").innerHTML="";if(!tasks.length){$("taskList").textContent="Du har inga läxor ännu.";return}tasks.forEach((t,i)=>{const div=document.createElement("div");div.className="item";const info=document.createElement("div"),title=document.createElement("strong"),small=document.createElement("small");title.textContent=(t.done?"✅ ":"")+t.name;small.textContent=t.subject+(t.date?" • "+t.date:"")+(t.info?" • "+t.info:"");info.append(title,small);const buttons=document.createElement("div"),done=document.createElement("button"),del=document.createElement("button");done.className="secondary";done.textContent=t.done?"Ångra":"Klar";done.onclick=()=>{tasks[i].done=!tasks[i].done;if(tasks[i].done)completeChallenge("homework");save()};del.className="danger";del.textContent="Ta bort";del.onclick=()=>{tasks.splice(i,1);save()};buttons.append(done,del);div.append(info,buttons);$("taskList").append(div)})}
-function addWord(){const term=$("newTerm").value.trim(),definition=$("newDefinition").value.trim();if(!term||!definition){$("wordMessage").textContent="Fyll i båda fälten.";return}words.push({term,definition});$("newTerm").value="";$("newDefinition").value="";$("wordMessage").textContent="Begreppet har sparats!";save();renderCard()}
-function createQuiz(){const text=$("notes").value.trim();if(!text){$("quizMessage").textContent="Klistra in dina anteckningar först!";return}const imported=[];text.split(/\n/).filter(x=>x.trim()).forEach(line=>{const m=line.match(/^\s*(.+?)\s*(?::|–|—|\t)\s*(.+)\s*$/);if(m)imported.push({term:m[1].trim(),definition:m[2].trim()})});if(imported.length<2){$("quizMessage").textContent="Skriv minst två rader med formatet Begrepp: Förklaring.";return}imported.forEach(w=>{const old=words.find(x=>x.term.toLowerCase()===w.term.toLowerCase());if(old)old.definition=w.definition;else words.push(w)});questions=[...imported].sort(()=>Math.random()-.5);qIndex=0;score=0;$("quizMessage").textContent=imported.length+" begrepp har lagts till!";$("notes").value="";save();showPage("quiz");nextQuiz()}
-function nextQuiz(){ $("feedback").textContent="";$("options").innerHTML="";$("nextQuestion").classList.add("hidden");if(qIndex>=questions.length){$("questionTitle").textContent="🎉 Quiz klart!";$("questionText").textContent="Du fick "+score+" av "+questions.length+" rätt!";$("feedback").textContent="Bra jobbat! Fortsätt träna!";totalCorrect+=score;recordStudyDay();save();return}const current=questions[qIndex],others=questions.filter((_,i)=>i!==qIndex).sort(()=>Math.random()-.5).slice(0,3),choices=[current,...others].sort(()=>Math.random()-.5);$("questionTitle").textContent="Fråga "+(qIndex+1)+" av "+questions.length;$("questionText").textContent="Vad betyder "+current.term+"?";choices.forEach(choice=>{const b=document.createElement("button");b.className="option";b.textContent=choice.definition;b.onclick=()=>{document.querySelectorAll("#options button").forEach(x=>x.disabled=true);if(choice===current){score++;$("feedback").textContent="🎉 Rätt! Snyggt jobbat!";$("feedback").style.color="green"}else{$("feedback").textContent="Inte riktigt. Rätt svar är: "+current.definition;$("feedback").style.color="#b33"}$("nextQuestion").textContent=qIndex===questions.length-1?"Visa resultat":"Nästa fråga →";$("nextQuestion").classList.remove("hidden")};$("options").append(b)})}
-function nextQuizStep(){qIndex++;nextQuiz()}$("nextQuestion").onclick=nextQuizStep;
-function revealCard(){$("cardDefinition").classList.toggle("hidden")}function changeCard(step){if(!words.length)return;cardIndex=(cardIndex+step+words.length)%words.length;renderCard()}
-function renderCard(){const w=words[cardIndex];$("cardTerm").textContent=w?w.term:"Lägg till ett begrepp";$("cardDefinition").textContent=w?w.definition:"";$("cardDefinition").classList.add("hidden");$("cardCounter").textContent=words.length?"Begrepp "+(cardIndex+1)+" av "+words.length:"Din lista är tom"}
-function completeChallenge(id){const d=today();if(challenge.completedDate!==d){challenge.completedDate=d;challenge.completed=[]}if(challenge.completed.includes(id))return;challenge.completed.push(id);challenge.points+=20;renderChallenges()}
-function recordStudyDay(){const d=today();if(challenge.lastStudyDate!==d){const y=new Date(Date.now()-86400000).toISOString().slice(0,10);challenge.streak=challenge.lastStudyDate===y?challenge.streak+1:1;challenge.lastStudyDate=d}completeChallenge("quiz")}
-function renderChallenges(){const d=today();if(challenge.completedDate!==d){challenge.completedDate=d;challenge.completed=[]}if($("points"))$("points").textContent=challenge.points;if($("dailyDone"))$("dailyDone").textContent=challenge.completed.length+"/2";if($("streak"))$("streak").textContent=challenge.streak;if(!$("challengeList"))return;const list=[["quiz","🧠 Quizstart","Gör klart ett quiz idag","20 poäng"],["homework","📝 Läxhjälten","Markera en läxa som klar idag","20 poäng"]];$("challengeList").innerHTML="";list.forEach(([id,title,desc,pts])=>{const div=document.createElement("div");div.className="challenge"+(challenge.completed.includes(id)?" done":"");const strong=document.createElement("strong"),p=document.createElement("p"),small=document.createElement("small");strong.textContent=(challenge.completed.includes(id)?"✅ ":"")+title;p.textContent=desc;small.textContent=challenge.completed.includes(id)?"Klar!":pts;div.append(strong,p,small);$("challengeList").append(div)})}
-update();renderCard();renderChallenges();showPage("home");initAuth();
+// ======================================
+// SUPABASE – PLUGGAPRO
+// ======================================
+
+const SUPABASE_URL = "https://gkvajwgcdeowodyrrcnh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_3M9OcxpHbcGkaEWbPlZ3BA_YiPdrO5W";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+// ======================================
+// GRUNDINSTÄLLNINGAR
+// ======================================
+
+const $ = id => document.getElementById(id);
+
+const today = () => new Date().toLocaleDateString("sv-SE");
+
+function loadLocal() {
+  try {
+    return JSON.parse(localStorage.getItem("pp_data")) || {};
+  } catch(e) {
+    return {};
+  }
+}
+
+const oldData = loadLocal();
+
+let words = oldData.words || JSON.parse(localStorage.getItem("pp_words") || "[]");
+let tasks = oldData.tasks || JSON.parse(localStorage.getItem("pp_tasks") || "[]");
+let savedQuizzes = oldData.savedQuizzes || [];
+let totalCorrect = Number(oldData.totalCorrect ?? localStorage.getItem("pp_correct")) || 0;
+
+let challenge = oldData.challenge || {
+  date:today(),
+  quizDone:false,
+  taskDone:false,
+  points:0
+};
+
+if(challenge.date !== today()) {
+  challenge = {
+    date:today(),
+    quizDone:false,
+    taskDone:false,
+    points:challenge.points || 0
+  };
+}
+
+let questions = [];
+let qIndex = 0;
+let score = 0;
+let cardIndex = 0;
+let currentQuizId = null;
+let currentUser = null;
+let username = "";
+
+// ======================================
+// SPARA OCH LADDA DATA
+// ======================================
+
+function getData() {
+  return {
+    words,
+    tasks,
+    savedQuizzes,
+    totalCorrect,
+    challenge
+  };
+}
+
+async function saveData() {
+  const data = getData();
+
+  localStorage.setItem("pp_data", JSON.stringify(data));
+  localStorage.setItem("pp_words", JSON.stringify(words));
+  localStorage.setItem("pp_tasks", JSON.stringify(tasks));
+  localStorage.setItem("pp_correct", totalCorrect);
+
+  if(!currentUser) return;
+
+  $("cloudStatus").textContent = "☁️ Sparar dina uppgifter...";
+
+  const {error} = await supabaseClient
+    .from("user_data")
+    .upsert({
+      user_id:currentUser.id,
+      data:data
+    }, {onConflict:"user_id"});
+
+  if(error) {
+    $("cloudStatus").textContent = "⚠️ Kunde inte spara i molnet: " + error.message;
+  } else {
+    $("cloudStatus").textContent = "☁️ Dina uppgifter är sparade!";
+  }
+
+  await syncProfilePoints();
+}
+
+async function loadUserData() {
+  if(!currentUser) return;
+
+  $("cloudStatus").textContent = "☁️ Hämtar dina sparade uppgifter...";
+
+  const {data,error} = await supabaseClient
+    .from("user_data")
+    .select("data")
+    .eq("user_id",currentUser.id)
+    .maybeSingle();
+
+  if(error) {
+    $("cloudStatus").textContent = "⚠️ Kunde inte hämta data: " + error.message;
+    return;
+  }
+
+  if(data && data.data) {
+    const d = data.data;
+    words = d.words || [];
+    tasks = d.tasks || [];
+    savedQuizzes = d.savedQuizzes || [];
+    totalCorrect = d.totalCorrect || 0;
+    challenge = d.challenge || challenge;
+  } else {
+    await saveData();
+  }
+
+  if(challenge.date !== today()) {
+    challenge = {
+      date:today(),
+      quizDone:false,
+      taskDone:false,
+      points:challenge.points || 0
+    };
+    await saveData();
+  }
+
+  update();
+  renderCard();
+  renderSavedQuizzes();
+  $("cloudStatus").textContent = "☁️ Dina uppgifter är synkroniserade!";
+}
+
+// ======================================
+// INLOGGNING
+// ======================================
+
+async function login() {
+  const email = $("email").value.trim();
+
+  if(!email) {
+    $("loginMessage").textContent = "Skriv din e-postadress först.";
+    return;
+  }
+
+  $("loginMessage").textContent = "Skickar inloggningslänk...";
+
+  const {error} = await supabaseClient.auth.signInWithOtp({
+    email:email,
+    options:{
+      emailRedirectTo:window.location.href.split("?")[0]
+    }
+  });
+
+  if(error) {
+    $("loginMessage").textContent = "Fel: " + error.message;
+  } else {
+    $("loginMessage").textContent = "📩 Kolla din e-post och klicka på inloggningslänken!";
+  }
+}
+
+async function logout() {
+  await supabaseClient.auth.signOut();
+  location.reload();
+}
+
+async function handleAuth(session) {
+  currentUser = session ? session.user : null;
+
+  if(currentUser) {
+    $("loggedOut").classList.add("hidden");
+    $("loggedIn").classList.remove("hidden");
+    $("accountEmail").textContent = "Inloggad som: " + currentUser.email;
+    $("cloudStatus").textContent = "☁️ Ansluter till ditt konto...";
+
+    await loadUserData();
+    await ensureProfile();
+    await syncProfilePoints();
+
+    $("usernameInput").value = username;
+  } else {
+    $("loggedOut").classList.remove("hidden");
+    $("loggedIn").classList.add("hidden");
+    $("cloudStatus").textContent = "Inte inloggad. Dina uppgifter sparas på den här enheten.";
+  }
+
+  update();
+}
+
+supabaseClient.auth.onAuthStateChange((event,session) => {
+  setTimeout(() => handleAuth(session),0);
+});
+
+(async function startAuth() {
+  const {data} = await supabaseClient.auth.getSession();
+  await handleAuth(data.session);
+})();
+
+// ======================================
+// ANVÄNDARPROFIL OCH TOPPLISTA
+// ======================================
+
+async function ensureProfile() {
+  if(!currentUser) return;
+
+  const {data,error} = await supabaseClient
+    .from("leaderboard_profiles")
+    .select("username,points")
+    .eq("user_id",currentUser.id)
+    .maybeSingle();
+
+  if(error) {
+    $("accountMessage").textContent = "Profilfel: " + error.message;
+    return;
+  }
+
+  if(data) {
+    username = data.username;
+  } else {
+    username = "Pluggare" + currentUser.id.slice(0,5);
+
+    const {error:insertError} = await supabaseClient
+      .from("leaderboard_profiles")
+      .insert({
+        user_id:currentUser.id,
+        username:username,
+        points:challenge.points || 0
+      });
+
+    if(insertError) {
+      $("accountMessage").textContent = "Kunde inte skapa profil: " + insertError.message;
+    }
+  }
+
+  $("usernameInput").value = username;
+}
+
+async function saveUsername() {
+  if(!currentUser) {
+    $("accountMessage").textContent = "Du måste logga in först.";
+    return;
+  }
+
+  const newName = $("usernameInput").value.trim();
+
+  if(newName.length < 3) {
+    $("accountMessage").textContent = "Användarnamnet måste ha minst 3 tecken.";
+    return;
+  }
+
+  if(newName.length > 20) {
+    $("accountMessage").textContent = "Användarnamnet får vara högst 20 tecken.";
+    return;
+  }
+
+  const {error} = await supabaseClient
+    .from("leaderboard_profiles")
+    .update({
+      username:newName,
+      points:challenge.points || 0,
+      updated_at:new Date().toISOString()
+    })
+    .eq("user_id",currentUser.id);
+
+  if(error) {
+    $("accountMessage").textContent = "Kunde inte spara. Namnet kanske redan används.";
+  } else {
+    username = newName;
+    $("accountMessage").textContent = "✅ Användarnamnet är sparat!";
+    loadLeaderboard();
+  }
+}
+
+async function syncProfilePoints() {
+  if(!currentUser) return;
+
+  const {error} = await supabaseClient
+    .from("leaderboard_profiles")
+    .update({
+      points:challenge.points || 0,
+      updated_at:new Date().toISOString()
+    })
+    .eq("user_id",currentUser.id);
+
+  if(error) {
+    console.log("Kunde inte uppdatera poäng:",error.message);
+  }
+}
+
+async function loadLeaderboard() {
+  $("leaderboardList").textContent = "Laddar topplistan...";
+
+  const {data,error} = await supabaseClient
+    .from("leaderboard_profiles")
+    .select("username,points")
+    .order("points",{ascending:false})
+    .order("username",{ascending:true})
+    .limit(50);
+
+  if(error) {
+    $("leaderboardList").textContent = "Kunde inte hämta topplistan: " + error.message;
+    return;
+  }
+
+  $("leaderboardList").innerHTML = "";
+
+  if(!data || !data.length) {
+    $("leaderboardList").textContent = "Ingen finns på topplistan ännu.";
+    return;
+  }
+
+  data.forEach((person,index) => {
+    const row = document.createElement("div");
+    row.className = "item";
+
+    const name = document.createElement("strong");
+    name.textContent = (index+1) + ". " + person.username;
+
+    const points = document.createElement("span");
+    points.textContent = "⭐ " + person.points + " poäng";
+
+    row.append(name,points);
+    $("leaderboardList").append(row);
+  });
+}
+
+// ======================================
+// SIDOR OCH UPPDATERING
+// ======================================
+
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
+  $(page).classList.remove("hidden");
+
+  update();
+
+  if(page==="cards") renderCard();
+  if(page==="saved") renderSavedQuizzes();
+  if(page==="leaderboard") loadLeaderboard();
+}
+
+function update() {
+  $("homeTasks").textContent = tasks.filter(t=>!t.done).length;
+  $("homeWords").textContent = words.length;
+  $("homeDone").textContent = tasks.filter(t=>t.done).length;
+
+  $("totalQuiz").textContent = totalCorrect;
+  $("totalTasks").textContent = tasks.filter(t=>t.done).length;
+  $("totalWords").textContent = words.length;
+
+  $("challengePoints").textContent = challenge.points || 0;
+  $("progressPoints").textContent = challenge.points || 0;
+
+  renderTasks();
+  renderChallenges();
+}
+
+// ======================================
+// LÄXOR
+// ======================================
+
+function addTask() {
+  const name = $("taskName").value.trim();
+
+  if(!name) {
+    $("taskMessage").textContent = "Skriv vad läxan heter först.";
+    return;
+  }
+
+  tasks.push({
+    name:name,
+    subject:$("taskSubject").value,
+    date:$("taskDate").value,
+    info:$("taskInfo").value.trim(),
+    done:false
+  });
+
+  $("taskName").value = "";
+  $("taskDate").value = "";
+  $("taskInfo").value = "";
+  $("taskMessage").textContent = "✅ Läxan har lagts till!";
+
+  saveData();
+  update();
+}
+
+function renderTasks() {
+  $("taskList").innerHTML = "";
+
+  if(!tasks.length) {
+    $("taskList").textContent = "Du har inga läxor ännu.";
+    return;
+  }
+
+  tasks.forEach((t,i) => {
+    const div = document.createElement("div");
+    div.className = "item";
+
+    const info = document.createElement("div");
+    const title = document.createElement("strong");
+    title.textContent = (t.done ? "✅ " : "") + t.name;
+
+    const small = document.createElement("small");
+    small.textContent = t.subject +
+      (t.date ? " • " + t.date : "") +
+      (t.info ? " • " + t.info : "");
+
+    info.append(title,small);
+
+    const buttons = document.createElement("div");
+
+    const done = document.createElement("button");
+    done.className = "secondary";
+    done.textContent = t.done ? "Ångra" : "Klar";
+
+    done.onclick = () => {
+      const wasDone = tasks[i].done;
+      tasks[i].done = !wasDone;
+
+      if(!wasDone) completeTaskChallenge();
+
+      saveData();
+      update();
+    };
+
+    const del = document.createElement("button");
+    del.className = "danger";
+    del.textContent = "Ta bort";
+    del.onclick = () => {
+      tasks.splice(i,1);
+      saveData();
+      update();
+    };
+
+    buttons.append(done,del);
+    div.append(info,buttons);
+    $("taskList").append(div);
+  });
+}
+
+// ======================================
+// DAGLIGA UTMANINGAR
+// ======================================
+
+function resetChallengeIfNeeded() {
+  if(challenge.date !== today()) {
+    challenge = {
+      date:today(),
+      quizDone:false,
+      taskDone:false,
+      points:challenge.points || 0
+    };
+  }
+}
+
+function completeTaskChallenge() {
+  resetChallengeIfNeeded();
+
+  if(!challenge.taskDone) {
+    challenge.taskDone = true;
+    challenge.points = (challenge.points || 0) + 20;
+  }
+
+  update();
+}
+
+function completeQuizChallenge() {
+  resetChallengeIfNeeded();
+
+  if(!challenge.quizDone) {
+    challenge.quizDone = true;
+    challenge.points = (challenge.points || 0) + 20;
+  }
+
+  update();
+}
+
+function renderChallenges() {
+  resetChallengeIfNeeded();
+
+  $("challengeList").innerHTML = "";
+
+  const challenges = [
+    {
+      done:challenge.quizDone,
+      text:"Slutför ett quiz",
+      points:"+20 poäng"
+    },
+    {
+      done:challenge.taskDone,
+      text:"Markera en läxa som klar",
+      points:"+20 poäng"
+    }
+  ];
+
+  challenges.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "status";
+
+    const title = document.createElement("strong");
+    title.textContent = (c.done ? "✅ " : "⬜ ") + c.text;
+
+    const small = document.createElement("p");
+    small.className = "muted";
+    small.textContent = c.done ? "Klar för idag!" : c.points;
+
+    div.append(title,small);
+    $("challengeList").append(div);
+  });
+}
+
+// ======================================
+// QUIZ – SKAPA OCH SPARA
+// ======================================
+
+function createQuiz() {
+  const text = $("notes").value.trim();
+  const name = $("quizName").value.trim() || "Mitt quiz";
+
+  if(!text) {
+    $("quizMessage").textContent = "Klistra in dina anteckningar först!";
+    return;
+  }
+
+  const lines = text.split(/\n/).filter(x=>x.trim());
+  const imported = [];
+
+  lines.forEach(line => {
+    const match = line.match(/^\s*(.+?)\s*(?::|–|—|\t)\s*(.+)\s*$/);
+
+    if(match) {
+      imported.push({
+        term:match[1].trim(),
+        definition:match[2].trim()
+      });
+    }
+  });
+
+  if(imported.length < 2) {
+    $("quizMessage").textContent =
+      "Skriv minst två rader med formatet Begrepp: Förklaring.";
+    return;
+  }
+
+  imported.forEach(w => {
+    const existing = words.find(x=>x.term.toLowerCase()===w.term.toLowerCase());
+
+    if(existing) existing.definition = w.definition;
+    else words.push(w);
+  });
+
+  const quiz = {
+    id:Date.now().toString(),
+    name:name,
+    questions:imported,
+    createdAt:new Date().toLocaleDateString("sv-SE")
+  };
+
+  savedQuizzes.unshift(quiz);
+  currentQuizId = quiz.id;
+
+  $("quizMessage").textContent = "✅ Quizet har skapats och sparats!";
+  $("notes").value = "";
+  $("quizName").value = "";
+
+  saveData();
+  renderSavedQuizzes();
+  startQuiz(quiz.id);
+}
+
+function startQuiz(id) {
+  const quiz = savedQuizzes.find(q=>q.id===id);
+
+  if(!quiz) return;
+
+  currentQuizId = id;
+  questions = [...quiz.questions].sort(()=>Math.random()-.5);
+  qIndex = 0;
+  score = 0;
+
+  showPage("quiz");
+  nextQuiz();
+}
+
+// ======================================
+// QUIZ – SPELA
+// ======================================
+
+function nextQuiz() {
+  $("feedback").textContent = "";
+  $("options").innerHTML = "";
+  $("nextQuestion").classList.add("hidden");
+
+  if(qIndex >= questions.length) {
+    $("questionTitle").textContent = "🎉 Quiz klart!";
+    $("questionText").textContent =
+      "Du fick " + score + " av " + questions.length + " rätt!";
+
+    $("feedback").textContent = "Bra jobbat! Fortsätt träna!";
+
+    totalCorrect += score;
+    completeQuizChallenge();
+
+    saveData();
+    update();
+    return;
+  }
+
+  const current = questions[qIndex];
+
+  const others = questions
+    .filter((_,i)=>i!==qIndex)
+    .sort(()=>Math.random()-.5)
+    .slice(0,3);
+
+  const choices = [current,...others].sort(()=>Math.random()-.5);
+
+  $("questionTitle").textContent =
+    "Fråga " + (qIndex+1) + " av " + questions.length;
+
+  $("questionText").textContent = "Vad betyder " + current.term + "?";
+
+  choices.forEach(choice => {
+    const b = document.createElement("button");
+    b.className = "option";
+    b.textContent = choice.definition;
+
+    b.onclick = () => {
+      document.querySelectorAll("#options button").forEach(x=>x.disabled=true);
+
+      if(choice === current) {
+        score++;
+        $("feedback").textContent = "🎉 Rätt! Snyggt jobbat!";
+        $("feedback").className = "good";
+      } else {
+        $("feedback").textContent =
+          "Inte riktigt. Rätt svar är: " + current.definition;
+        $("feedback").className = "bad";
+      }
+
+      $("nextQuestion").textContent =
+        qIndex === questions.length-1 ? "Visa resultat" : "Nästa fråga →";
+
+      $("nextQuestion").classList.remove("hidden");
+    };
+
+    $("options").append(b);
+  });
+}
+
+function nextQuizStep() {
+  qIndex++;
+  nextQuiz();
+}
+
+$("nextQuestion").onclick = nextQuizStep;
+
+// ======================================
+// MINA SPARADE QUIZ
+// ======================================
+
+function renderSavedQuizzes() {
+  $("savedQuizList").innerHTML = "";
+
+  if(!savedQuizzes.length) {
+    $("savedQuizList").textContent = "Du har inte sparat några quiz ännu.";
+    return;
+  }
+
+  savedQuizzes.forEach(quiz => {
+    const div = document.createElement("div");
+    div.className = "item";
+
+    const info = document.createElement("div");
+
+    const title = document.createElement("strong");
+    title.textContent = quiz.name;
+
+    const small = document.createElement("small");
+    small.textContent =
+      quiz.questions.length + " frågor • Skapat " + quiz.createdAt;
+
+    info.append(title,small);
+
+    const buttons = document.createElement("div");
+
+    const start = document.createElement("button");
+    start.textContent = "▶ Starta";
+    start.onclick = () => startQuiz(quiz.id);
+
+    const del = document.createElement("button");
+    del.className = "danger";
+    del.textContent = "🗑 Ta bort";
+
+    del.onclick = () => {
+      if(confirm("Vill du verkligen ta bort quizet?")) {
+        savedQuizzes = savedQuizzes.filter(q=>q.id!==quiz.id);
+        saveData();
+        renderSavedQuizzes();
+      }
+    };
+
+    buttons.append(start,del);
+    div.append(info,buttons);
+    $("savedQuizList").append(div);
+  });
+}
+
+// ======================================
+// FLASHCARDS
+// ======================================
+
+function revealCard() {
+  if(!words.length) return;
+  $("cardDefinition").classList.toggle("hidden");
+}
+
+function changeCard(step) {
+  if(!words.length) return;
+
+  cardIndex = (cardIndex+step+words.length)%words.length;
+  renderCard();
+}
+
+function renderCard() {
+  const w = words[cardIndex];
+
+  $("cardTerm").textContent = w ? w.term : "Lägg till ett begrepp";
+  $("cardDefinition").textContent = w ? w.definition : "";
+  $("cardDefinition").classList.add("hidden");
+
+  $("cardCounter").textContent = words.length
+    ? "Begrepp " + (cardIndex+1) + " av " + words.length
+    : "Din lista är tom";
+}
+
+function addWord() {
+  const term = $("newTerm").value.trim();
+  const definition = $("newDefinition").value.trim();
+
+  if(!term || !definition) {
+    $("wordMessage").textContent = "Fyll i båda fälten.";
+    return;
+  }
+
+  words.push({term,definition});
+
+  $("newTerm").value = "";
+  $("newDefinition").value = "";
+  $("wordMessage").textContent = "Begreppet har sparats!";
+
+  saveData();
+  renderCard();
+}
+
+// ======================================
+// STARTA SIDAN
+// ======================================
+
+update();
+renderCard();
+renderSavedQuizzes();
+showPage("home");
 </script>
+
 </body>
 </html>
