@@ -1,138 +1,442 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="sv">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PluggaPro – SO-träning</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PluggaPro</title>
 <style>
-:root{--blue:#246fca;--blue2:#eaf3ff;--ink:#18263b;--muted:#68768b;--bg:#f4f7fc;--line:#e1e8f2;--green:#168451}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,Arial,sans-serif}
-header{background:linear-gradient(120deg,#155db2,#4a9be8);color:#fff;padding:27px 18px}
-.wrap{max-width:900px;margin:auto;padding:0 16px}.brand{font-size:30px;font-weight:850;letter-spacing:-1px}.tag{opacity:.92;margin-top:4px}
-main{padding:22px 0 48px}.panel{background:#fff;border:1px solid var(--line);border-radius:17px;padding:20px;margin:14px 0;box-shadow:0 5px 18px #193b640c}
-h2{margin:0 0 12px;font-size:21px}.muted{color:var(--muted);font-size:14px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
-button{border:0;border-radius:10px;padding:11px 15px;background:var(--blue);color:white;font-weight:700;cursor:pointer}
-button.secondary{background:var(--blue2);color:#205c9d}button.danger{background:#fff0f0;color:#a52d2d}
-button:disabled{opacity:.45;cursor:not-allowed}
-input,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;margin:6px 0 12px;background:#fff;color:var(--ink)}
-textarea{min-height:86px;resize:vertical}.cardword{background:#f0f6ff;border:1px solid #dceaff;border-radius:14px;padding:28px 16px;text-align:center;min-height:145px;display:flex;flex-direction:column;justify-content:center}
-.cardword h3{font-size:28px;margin:0 0 12px}.cardword p{margin:0;line-height:1.5}
-.listitem{padding:12px 0;border-top:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between}
-.listitem strong{display:block}.listitem small{display:block;color:var(--muted);margin-top:4px;line-height:1.4}
-.hidden{display:none!important}.feedback{padding:10px;border-radius:10px;background:#f2f7ff;line-height:1.5}.score{color:var(--green);font-weight:800}
-@media(max-width:560px){.brand{font-size:26px}.panel{padding:16px}}
+:root {
+  --blue:#2878d0;
+  --light:#edf5ff;
+  --bg:#f5f8fd;
+  --ink:#1c2c42;
+  --muted:#718096;
+  --line:#e3eaf3;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+}
+header {
+  background:linear-gradient(120deg,#155db2,#59a5ed);
+  color:white;
+  padding:28px 18px;
+}
+.wrap {max-width:950px;margin:auto;padding:0 16px}
+.brand {font-size:32px;font-weight:900}
+header p {margin:7px 0 0;opacity:.9}
+nav {display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}
+button {
+  border:0;
+  border-radius:10px;
+  padding:12px 16px;
+  background:var(--blue);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+button.secondary {background:var(--light);color:#205c9d}
+button.danger {background:#fff0f0;color:#b33}
+button:disabled {opacity:.5}
+.panel {
+  background:white;
+  padding:22px;
+  border-radius:17px;
+  margin:16px 0;
+  border:1px solid var(--line);
+  box-shadow:0 5px 18px #193b640c;
+}
+h2 {margin-top:0}
+input,textarea,select {
+  width:100%;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  margin:7px 0 14px;
+  font:inherit;
+  background:white;
+}
+textarea {min-height:120px;resize:vertical}
+label {font-weight:bold;font-size:14px}
+.muted {color:var(--muted);font-size:14px}
+.hidden {display:none!important}
+.item {
+  border-top:1px solid var(--line);
+  padding:14px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.item small {display:block;color:var(--muted);margin-top:5px}
+.card {
+  background:var(--light);
+  padding:30px 15px;
+  border-radius:15px;
+  text-align:center;
+  margin:15px 0;
+}
+.card h3 {font-size:25px}
+.option {
+  display:block;
+  width:100%;
+  text-align:left;
+  margin:9px 0;
+  background:var(--light);
+  color:#205c9d;
+}
+.option:hover {background:#dcecff}
+.stats {display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat {
+  background:var(--light);
+  padding:17px 8px;
+  border-radius:12px;
+  text-align:center;
+}
+.stat strong {font-size:25px;color:var(--blue);display:block}
+.stat small {color:var(--muted)}
+@media(max-width:550px) {
+  .stats {grid-template-columns:1fr 1fr}
+  .brand {font-size:27px}
+  .panel {padding:16px}
+}
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="brand">📚 PluggaPro</div><div class="tag">Träna SO-begrepp på ditt sätt</div></div></header>
+
+<header>
+<div class="wrap">
+<div class="brand">📚 PluggaPro</div>
+<p>Din personliga studieplattform</p>
+</div>
+</header>
+
 <main class="wrap">
-<section class="panel">
-<h2>Din SO-träning</h2>
-<p class="muted">Lägg in begrepp från skolan och öva på precis det du behöver kunna. Dina listor sparas i den här webbläsaren på den här enheten.</p>
-<div class="tabs">
-<button class="secondary" data-mode="cards">🃏 Flashcards</button>
-<button class="secondary" data-mode="quiz">🧠 Flervalsquiz</button>
-<button class="secondary" data-mode="write">✍️ Skriv svar</button>
+
+<nav>
+<button onclick="showPage('home')">🏠 Hem</button>
+<button onclick="showPage('homework')">📝 Mina läxor</button>
+<button onclick="showPage('quiz')">🧠 Skapa quiz</button>
+<button onclick="showPage('cards')">🃏 Flashcards</button>
+<button onclick="showPage('progress')">🏆 Framsteg</button>
+</nav>
+
+<!-- STARTSIDA -->
+<section id="home" class="page">
+<div class="panel">
+<h2>Välkommen till PluggaPro! 👋</h2>
+<p class="muted">Här kan du samla dina läxor, träna inför prov och testa dina kunskaper.</p>
+<div class="stats">
+<div class="stat"><strong id="homeTasks">0</strong><small>Aktiva läxor</small></div>
+<div class="stat"><strong id="homeWords">0</strong><small>Begrepp</small></div>
+<div class="stat"><strong id="homeDone">0</strong><small>Klart</small></div>
 </div>
-<div id="cards">
-<div class="muted" id="counter"></div>
-<div class="cardword"><h3 id="prompt"></h3><p id="answer" class="hidden"></p></div>
-<div class="tabs"><button id="reveal">Visa förklaring</button><button class="secondary" id="prev">← Föregående</button><button class="secondary" id="next">Nästa →</button></div>
 </div>
-<div id="quiz" class="hidden">
-<div class="muted" id="quizCounter"></div><h3 id="quizQuestion"></h3><div id="quizOptions"></div>
-<p id="quizFeedback" class="feedback" aria-live="polite"></p><button id="quizNext" class="hidden">Nästa fråga →</button>
-</div>
-<div id="write" class="hidden">
-<div class="muted" id="writeCounter"></div><h3 id="writeTerm"></h3>
-<textarea id="writeAnswer" placeholder="Skriv vad begreppet betyder..."></textarea>
-<button id="checkWrite">Visa facit</button><p id="writeFeedback" class="feedback hidden"></p>
-<div class="tabs"><button class="secondary" id="writeNext">Nästa begrepp →</button></div>
+<div class="panel">
+<h2>🚀 Snabbstart</h2>
+<button onclick="showPage('homework')">Lägg till en läxa</button>
+<button onclick="showPage('quiz')">Skapa ett quiz</button>
 </div>
 </section>
-<section class="panel">
-<h2>➕ Lägg till ett begrepp</h2>
-<label for="term">Begrepp</label><input id="term" placeholder="Till exempel: Riksdag">
-<label for="definition">Förklaring</label><textarea id="definition" placeholder="Skriv en förklaring med egna ord..."></textarea>
-<button id="add">Lägg till i min lista</button><p id="addMessage" class="muted" aria-live="polite"></p>
+
+<!-- LÄXOR -->
+<section id="homework" class="page hidden">
+<div class="panel">
+<h2>📝 Mina läxor</h2>
+<label>Läxans namn</label>
+<input id="taskName" placeholder="Exempelvis SO-prov">
+<label>Ämne</label>
+<select id="taskSubject">
+<option>SO</option>
+<option>NO</option>
+<option>Matte</option>
+<option>Svenska</option>
+<option>Engelska</option>
+<option>Historia</option>
+<option>Annat</option>
+</select>
+<label>Deadline eller provdatum</label>
+<input id="taskDate" type="date">
+<label>Vad ska du kunna?</label>
+<textarea id="taskInfo" placeholder="Skriv vad du behöver träna på..."></textarea>
+<button onclick="addTask()">➕ Lägg till läxa</button>
+<p id="taskMessage" class="muted"></p>
+</div>
+<div class="panel">
+<h2>📚 Dina läxor</h2>
+<div id="taskList"></div>
+</div>
 </section>
-<section class="panel">
-<h2>📖 Mina begrepp <span class="muted" id="count"></span></h2><div id="wordList"></div>
+
+<!-- QUIZ -->
+<section id="quiz" class="page hidden">
+<div class="panel">
+<h2>🧠 Skapa quiz från anteckningar</h2>
+<p class="muted">Klistra in dina anteckningar här. Skriv gärna ett begrepp per rad med en förklaring efter kolon.</p>
+<textarea id="notes" placeholder="Demokrati: Folket får vara med och bestämma.
+Diktatur: En person eller grupp har makten.
+Riksdag: Sveriges folkvalda församling."></textarea>
+<button onclick="createQuiz()">✨ Skapa quiz</button>
+<p id="quizMessage" class="muted"></p>
+</div>
+<div class="panel">
+<h2 id="questionTitle">Ditt quiz</h2>
+<p id="questionText" class="muted">Lägg in anteckningar för att börja!</p>
+<div id="options"></div>
+<p id="feedback" aria-live="polite"></p>
+<button id="nextQuestion" class="hidden" onclick="nextQuiz()">Nästa fråga →</button>
+</div>
 </section>
+
+<!-- FLASHCARDS -->
+<section id="cards" class="page hidden">
+<div class="panel">
+<h2>🃏 Flashcards</h2>
+<p id="cardCounter" class="muted"></p>
+<div class="card">
+<h3 id="cardTerm">Dina begrepp</h3>
+<p id="cardDefinition" class="hidden"></p>
+</div>
+<button onclick="revealCard()">Visa förklaring</button>
+<button class="secondary" onclick="changeCard(-1)">← Föregående</button>
+<button class="secondary" onclick="changeCard(1)">Nästa →</button>
+</div>
+<div class="panel">
+<h2>✍️ Lägg till egna begrepp</h2>
+<label>Begrepp</label>
+<input id="newTerm" placeholder="Begrepp">
+<label>Förklaring</label>
+<textarea id="newDefinition" placeholder="Vad betyder begreppet?"></textarea>
+<button onclick="addWord()">Lägg till begrepp</button>
+<p id="wordMessage" class="muted"></p>
+</div>
+</section>
+
+<!-- FRAMSTEG -->
+<section id="progress" class="page hidden">
+<div class="panel">
+<h2>🏆 Mina framsteg</h2>
+<div class="stats">
+<div class="stat"><strong id="totalQuiz">0</strong><small>Quizfrågor rätt</small></div>
+<div class="stat"><strong id="totalTasks">0</strong><small>Läxor klara</small></div>
+<div class="stat"><strong id="totalWords">0</strong><small>Begrepp sparade</small></div>
+</div>
+<p class="muted">Fortsätt träna och samla nya resultat!</p>
+</div>
+</section>
+
 </main>
+
 <script>
-const starter=[
- {term:"Demokrati",definition:"Ett styrelseskick där folket får vara med och bestämma, till exempel genom att rösta."},
- {term:"Diktatur",definition:"Ett styrelseskick där en person eller en liten grupp har den mesta makten och folket har begränsat inflytande."},
- {term:"Riksdag",definition:"Sveriges folkvalda församling. Riksdagen beslutar bland annat om lagar och statens budget."}
-];
-let words;try{words=JSON.parse(localStorage.getItem("pluggapro_words"))||starter}catch(e){words=starter}
-let index=0,quizIndex=0,quizScore=0;
-const $=id=>document.getElementById(id);
-function save(){try{localStorage.setItem("pluggapro_words",JSON.stringify(words))}catch(e){}render()}
-function render(){
- index=Math.max(0,Math.min(index,words.length-1));
- $("count").textContent=`(${words.length})`;
- $("counter").textContent=words.length?`Begrepp ${index+1} av ${words.length}`:"Din lista är tom – lägg till ditt första begrepp!";
- $("prompt").textContent=words[index]?.term||"Ditt första begrepp";
- $("answer").textContent=words[index]?.definition||"";
- $("answer").classList.add("hidden");$("reveal").textContent="Visa förklaring";
- $("prev").disabled=index<=0;$("next").disabled=index>=words.length-1;
- $("wordList").innerHTML="";
- words.forEach((w,i)=>{
-  const div=document.createElement("div");div.className="listitem";
-  const info=document.createElement("div"),strong=document.createElement("strong"),small=document.createElement("small");
-  strong.textContent=w.term;small.textContent=w.definition;info.append(strong,small);
-  const del=document.createElement("button");del.className="danger";del.textContent="Ta bort";
-  del.onclick=()=>{words.splice(i,1);index=0;save();showWrite()};
-  div.append(info,del);$("wordList").append(div);
+const $ = id => document.getElementById(id);
+
+function load(key,fallback) {
+ try {return JSON.parse(localStorage.getItem(key)) || fallback}
+ catch(e) {return fallback}
+}
+
+let words = load("pp_words",[]);
+let tasks = load("pp_tasks",[]);
+let questions = [];
+let qIndex = 0;
+let score = 0;
+let totalCorrect = Number(localStorage.getItem("pp_correct")) || 0;
+let cardIndex = 0;
+
+function save() {
+ localStorage.setItem("pp_words",JSON.stringify(words));
+ localStorage.setItem("pp_tasks",JSON.stringify(tasks));
+ update();
+}
+
+function showPage(page) {
+ document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
+ $(page).classList.remove("hidden");
+ update();
+ if(page==="cards") renderCard();
+}
+
+function update() {
+ $("homeTasks").textContent=tasks.filter(t=>!t.done).length;
+ $("homeWords").textContent=words.length;
+ $("homeDone").textContent=tasks.filter(t=>t.done).length;
+ $("totalQuiz").textContent=totalCorrect;
+ $("totalTasks").textContent=tasks.filter(t=>t.done).length;
+ $("totalWords").textContent=words.length;
+ renderTasks();
+}
+
+function addTask() {
+ const name=$("taskName").value.trim();
+ if(!name){$("taskMessage").textContent="Skriv vad läxan heter!";return}
+ tasks.push({
+  name,
+  subject:$("taskSubject").value,
+  date:$("taskDate").value,
+  info:$("taskInfo").value,
+  done:false
  });
+ $("taskName").value="";
+ $("taskDate").value="";
+ $("taskInfo").value="";
+ $("taskMessage").textContent="Läxan har sparats!";
+ save();
 }
-function setMode(mode){
- ["cards","quiz","write"].forEach(id=>$(id).classList.toggle("hidden",id!==mode));
- document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("secondary",b.dataset.mode!==mode));
- if(mode==="quiz")startQuiz();if(mode==="write")showWrite();
-}
-document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
-$("reveal").onclick=()=>{$("answer").classList.toggle("hidden");$("reveal").textContent=$("answer").classList.contains("hidden")?"Visa förklaring":"Dölj förklaring"};
-$("prev").onclick=()=>{index--;render()};$("next").onclick=()=>{index++;render()};
-$("add").onclick=()=>{
- const term=$("term").value.trim(),definition=$("definition").value.trim();
- if(!term||!definition){$("addMessage").textContent="Fyll i både begrepp och förklaring.";return}
- words.push({term,definition});$("term").value="";$("definition").value="";
- index=words.length-1;$("addMessage").textContent="Begreppet har lagts till!";save();
-};
-function startQuiz(){quizIndex=0;quizScore=0;nextQuiz()}
-function nextQuiz(){
- $("quizFeedback").textContent="";$("quizFeedback").classList.remove("score");$("quizNext").classList.add("hidden");
- if(words.length<2){$("quizCounter").textContent="";$("quizQuestion").textContent="Lägg till minst två begrepp för att spela quiz.";$("quizOptions").innerHTML="";return}
- if(quizIndex>=words.length){
-  $("quizCounter").textContent="Quiz klart";$("quizQuestion").textContent=`Du fick ${quizScore} av ${words.length} rätt!`;
-  $("quizOptions").innerHTML="";$("quizNext").textContent="Spela igen";$("quizNext").classList.remove("hidden");$("quizNext").onclick=startQuiz;return;
+
+function renderTasks() {
+ $("taskList").innerHTML="";
+ if(!tasks.length) {
+  $("taskList").textContent="Du har inga läxor ännu.";
+  return;
  }
- const current=words[quizIndex],others=words.filter((_,i)=>i!==quizIndex).sort(()=>Math.random()-.5).slice(0,3);
- const opts=[current,...others].sort(()=>Math.random()-.5);
- $("quizCounter").textContent=`Fråga ${quizIndex+1} av ${words.length}`;$("quizQuestion").textContent=`Vad betyder "${current.term}"?`;$("quizOptions").innerHTML="";
- opts.forEach(o=>{
-  const b=document.createElement("button");b.className="secondary";b.style.display="block";b.style.width="100%";b.style.margin="7px 0";b.style.textAlign="left";b.textContent=o.definition;
-  b.onclick=()=>{
-   document.querySelectorAll("#quizOptions button").forEach(x=>x.disabled=true);
-   if(o===current){quizScore++;$("quizFeedback").textContent="Rätt! Snyggt jobbat!";$("quizFeedback").classList.add("score")}
-   else $("quizFeedback").textContent="Inte riktigt. Rätt svar är: "+current.definition;
-   $("quizNext").textContent="Nästa fråga →";$("quizNext").classList.remove("hidden");
-   $("quizNext").onclick=()=>{quizIndex++;nextQuiz()};
-  };
-  $("quizOptions").append(b);
+ tasks.forEach((t,i)=>{
+  const div=document.createElement("div");
+  div.className="item";
+  const info=document.createElement("div");
+  const title=document.createElement("strong");
+  title.textContent=(t.done?"✅ ":"")+t.name;
+  const small=document.createElement("small");
+  small.textContent=t.subject+(t.date?" • "+t.date:"")+(t.info?" • "+t.info:"");
+  info.append(title,small);
+  const buttons=document.createElement("div");
+  const done=document.createElement("button");
+  done.className="secondary";
+  done.textContent=t.done?"Ångra":"Klar";
+  done.onclick=()=>{tasks[i].done=!tasks[i].done;save()};
+  const del=document.createElement("button");
+  del.className="danger";
+  del.textContent="Ta bort";
+  del.onclick=()=>{tasks.splice(i,1);save()};
+  buttons.append(done,del);
+  div.append(info,buttons);
+  $("taskList").append(div);
  });
 }
-function showWrite(){
- $("writeCounter").textContent=words.length?`Begrepp ${index+1} av ${words.length}`:"Din lista är tom";
- $("writeTerm").textContent=words[index]?.term||"Lägg till ett begrepp";
- $("writeAnswer").value="";$("writeFeedback").textContent="";$("writeFeedback").classList.add("hidden");
+
+function addWord() {
+ const term=$("newTerm").value.trim();
+ const definition=$("newDefinition").value.trim();
+ if(!term||!definition){$("wordMessage").textContent="Fyll i båda fälten.";return}
+ words.push({term,definition});
+ $("newTerm").value="";
+ $("newDefinition").value="";
+ $("wordMessage").textContent="Begreppet har sparats!";
+ save();
+ renderCard();
 }
-$("checkWrite").onclick=()=>{if(words[index]){$("writeFeedback").textContent="Facit: "+words[index].definition;$("writeFeedback").classList.remove("hidden")}};
-$("writeNext").onclick=()=>{if(words.length){index=(index+1)%words.length;showWrite();render()}};
-render();
+
+function createQuiz() {
+ const text=$("notes").value.trim();
+ if(!text){$("quizMessage").textContent="Klistra in dina anteckningar först!";return}
+
+ const lines=text.split(/\n/).filter(x=>x.trim());
+ const imported=[];
+
+ lines.forEach(line=>{
+  const match=line.match(/^\s*(.+?)\s*(?::|–|—|\t)\s*(.+)\s*$/);
+  if(match) imported.push({
+   term:match[1].trim(),
+   definition:match[2].trim()
+  });
+ });
+
+ if(imported.length<2) {
+  $("quizMessage").textContent="Skriv minst två rader med formatet Begrepp: Förklaring.";
+  return;
+ }
+
+ imported.forEach(w=>{
+  const existing=words.find(x=>x.term.toLowerCase()===w.term.toLowerCase());
+  if(existing) existing.definition=w.definition;
+  else words.push(w);
+ });
+
+ questions=[...imported].sort(()=>Math.random()-.5);
+ qIndex=0;
+ score=0;
+ $("quizMessage").textContent=imported.length+" begrepp har lagts till!";
+ $("notes").value="";
+ save();
+ showPage("quiz");
+ nextQuiz();
+}
+
+function nextQuiz() {
+ $("feedback").textContent="";
+ $("options").innerHTML="";
+ $("nextQuestion").classList.add("hidden");
+
+ if(qIndex>=questions.length) {
+  $("questionTitle").textContent="🎉 Quiz klart!";
+  $("questionText").textContent="Du fick "+score+" av "+questions.length+" rätt!";
+  $("feedback").textContent="Bra jobbat! Fortsätt träna!";
+  totalCorrect+=score;
+  localStorage.setItem("pp_correct",totalCorrect);
+  update();
+  return;
+ }
+
+ const current=questions[qIndex];
+ const others=questions.filter((_,i)=>i!==qIndex).sort(()=>Math.random()-.5).slice(0,3);
+ const choices=[current,...others].sort(()=>Math.random()-.5);
+
+ $("questionTitle").textContent="Fråga "+(qIndex+1)+" av "+questions.length;
+ $("questionText").textContent="Vad betyder "+current.term+"?";
+
+ choices.forEach(choice=>{
+  const b=document.createElement("button");
+  b.className="option";
+  b.textContent=choice.definition;
+  b.onclick=()=>{
+   document.querySelectorAll("#options button").forEach(x=>x.disabled=true);
+   if(choice===current) {
+    score++;
+    $("feedback").textContent="🎉 Rätt! Snyggt jobbat!";
+    $("feedback").style.color="green";
+   } else {
+    $("feedback").textContent="Inte riktigt. Rätt svar är: "+current.definition;
+    $("feedback").style.color="#b33";
+   }
+   $("nextQuestion").textContent=qIndex===questions.length-1?"Visa resultat":"Nästa fråga →";
+   $("nextQuestion").classList.remove("hidden");
+  };
+  $("options").append(b);
+ });
+}
+
+function nextQuizStep() {
+ qIndex++;
+ nextQuiz();
+}
+
+function revealCard() {
+ if(!words.length)return;
+ $("cardDefinition").classList.toggle("hidden");
+}
+
+function changeCard(step) {
+ if(!words.length)return;
+ cardIndex=(cardIndex+step+words.length)%words.length;
+ renderCard();
+}
+
+function renderCard() {
+ const w=words[cardIndex];
+ $("cardTerm").textContent=w?w.term:"Lägg till ett begrepp";
+ $("cardDefinition").textContent=w?w.definition:"";
+ $("cardDefinition").classList.add("hidden");
+ $("cardCounter").textContent=words.length?"Begrepp "+(cardIndex+1)+" av "+words.length:"Din lista är tom";
+}
+
+$("nextQuestion").onclick=nextQuizStep;
+
+update();
+renderCard();
+showPage("home");
 </script>
-</body></html>
+</body>
+</html>
