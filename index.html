@@ -1,4 +1,6 @@
 
+
+
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -108,35 +110,6 @@ label {font-weight:bold;font-size:14px}
   .mode-grid {grid-template-columns:1fr}
 }
 
-/* PLUGGAPRO – AI-FUNKTIONER OCH SKOLNIVÅ */
-.grade-box {
-  background: #edf5ff;
-  padding: 16px;
-  border-radius: 12px;
-  margin: 15px 0;
-}
-.ai-result {
-  background: #f3f8ff;
-  border: 1px solid #dceaff;
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 15px;
-  white-space: pre-wrap;
-  line-height: 1.6;
-}
-.ai-preview {
-  max-width: 100%;
-  max-height: 300px;
-  display: block;
-  margin: 12px 0;
-  border-radius: 12px;
-}
-.ai-loading {
-  color: #2878d0;
-  font-weight: bold;
-  margin: 12px 0;
-}
-
 </style>
 </head>
 
@@ -181,21 +154,8 @@ label {font-weight:bold;font-size:14px}
   <button onclick="showPage('afterAnalysis')">🔍 Efteranalys</button>
   <button onclick="showPage('progress')">🏆 Framsteg</button>
   <button onclick="showPage('leaderboard')">🌍 Topplista</button>
-  <button onclick="showPage('photoAI')">📸 AI-läxhjälp</button>
-  <button onclick="showPage('aiQuiz')">🧠 AI-prov</button>
 </nav>
 
-<!-- SKOLNIVÅ -->
-<div class="panel grade-box">
-  <h2>🎓 Vilken årskurs går du i?</h2>
-  <p class="muted">PluggaPro anpassar förklaringarna och frågorna efter din nivå.</p>
-  <select id="schoolLevel" onchange="saveSchoolLevel()">
-    <option value="lagstadiet">Lågstadiet (årskurs 1–3)</option>
-    <option value="mellanstadiet">Mellanstadiet (årskurs 4–6)</option>
-    <option value="hogstadiet" selected>Högstadiet (årskurs 7–9)</option>
-  </select>
-  <p id="levelMessage" class="muted"></p>
-</div>
 
 
 <!-- HEM -->
@@ -417,54 +377,6 @@ Riksdag: Sveriges folkvalda församling."></textarea>
 </section>
 
 
-<!-- AI-LÄXHJÄLP -->
-<section id="photoAI" class="page hidden">
-  <div class="panel">
-    <h2>📸 AI-läxhjälp</h2>
-    <p class="muted">Ta eller ladda upp en bild på en skoluppgift. AI:n ska hjälpa dig förstå uppgiften steg för steg.</p>
-    <label for="homeworkPhoto">Bild på uppgiften</label>
-    <input id="homeworkPhoto" type="file" accept="image/*" capture="environment" onchange="previewHomeworkPhoto()">
-    <img id="homeworkPhotoPreview" class="ai-preview hidden" alt="Förhandsvisning av uppgiften">
-    <label for="photoQuestion">Vad vill du ha hjälp med? (valfritt)</label>
-    <textarea id="photoQuestion" placeholder="Exempel: Förklara vad frågan betyder, men ge mig inte bara svaret."></textarea>
-    <button id="photoHelpButton" onclick="askPhotoAI()">✨ Hjälp mig förstå uppgiften</button>
-    <p id="photoAIStatus" class="muted" aria-live="polite"></p>
-    <div id="photoAIResult" class="ai-result hidden" aria-live="polite"></div>
-  </div>
-</section>
-
-<!-- AI-SKAPADE PROV -->
-<section id="aiQuiz" class="page hidden">
-  <div class="panel">
-    <h2>🧠 Skapa ett prov med AI</h2>
-    <p class="muted">Skriv ämne och område så skapar AI:n ett övningsprov på din valda skolnivå.</p>
-    <label for="aiQuizSubject">Ämne</label>
-    <select id="aiQuizSubject">
-      <option>Matte</option>
-      <option>Svenska</option>
-      <option>Engelska</option>
-      <option>NO</option>
-      <option>SO</option>
-      <option>Historia</option>
-      <option>Geografi</option>
-      <option>Biologi</option>
-      <option>Fysik</option>
-      <option>Kemi</option>
-      <option>Annat</option>
-    </select>
-    <label for="aiQuizTopic">Vad ska provet handla om?</label>
-    <textarea id="aiQuizTopic" placeholder="Exempel: Fotosyntesen, demokrati eller bråk i matematik."></textarea>
-    <label for="aiQuizCount">Antal frågor</label>
-    <select id="aiQuizCount">
-      <option value="5">5 frågor</option>
-      <option value="10" selected>10 frågor</option>
-      <option value="15">15 frågor</option>
-    </select>
-    <button id="generateAIQuizButton" onclick="generateAIQuiz()">✨ Skapa övningsprov</button>
-    <p id="aiQuizStatus" class="muted" aria-live="polite"></p>
-    <div id="aiQuizResult" class="hidden"></div>
-  </div>
-</section>
 
 </main>
 
@@ -1647,211 +1559,6 @@ renderCard();
 renderSavedQuizzes();
 renderAfterAnalyses();
 showPage("home");
-
-// ======================================
-// SKOLNIVÅ OCH AI-FUNKTIONER
-// ======================================
-
-// AI kräver en säker backend. Lägg aldrig en privat AI-nyckel i den här filen.
-const AI_PHOTO_ENDPOINT = "/api/study/photo-help";
-const AI_QUIZ_ENDPOINT = "/api/study/generate-test";
-
-function saveSchoolLevel() {
-  const level = $("schoolLevel").value;
-  localStorage.setItem("pp_school_level", level);
-  const labels = {
-    lagstadiet: "Lågstadiet (årskurs 1–3)",
-    mellanstadiet: "Mellanstadiet (årskurs 4–6)",
-    hogstadiet: "Högstadiet (årskurs 7–9)"
-  };
-  $("levelMessage").textContent = "Vald nivå: " + labels[level] + ".";
-}
-
-function loadSchoolLevel() {
-  const saved = localStorage.getItem("pp_school_level");
-  const allowed = ["lagstadiet", "mellanstadiet", "hogstadiet"];
-  $("schoolLevel").value = allowed.includes(saved) ? saved : "hogstadiet";
-  saveSchoolLevel();
-}
-
-function previewHomeworkPhoto() {
-  const file = $("homeworkPhoto").files[0];
-  const preview = $("homeworkPhotoPreview");
-
-  if (!file) {
-    preview.removeAttribute("src");
-    preview.classList.add("hidden");
-    return;
-  }
-
-  if (!file.type.startsWith("image/")) {
-    $("photoAIStatus").textContent = "Välj en bildfil, till exempel JPG eller PNG.";
-    $("homeworkPhoto").value = "";
-    preview.classList.add("hidden");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    preview.src = reader.result;
-    preview.classList.remove("hidden");
-  };
-  reader.readAsDataURL(file);
-}
-
-function selectedSchoolLevelLabel() {
-  const labels = {
-    lagstadiet: "Lågstadiet, årskurs 1–3",
-    mellanstadiet: "Mellanstadiet, årskurs 4–6",
-    hogstadiet: "Högstadiet, årskurs 7–9"
-  };
-  return labels[$("schoolLevel").value] || labels.hogstadiet;
-}
-
-async function askPhotoAI() {
-  const file = $("homeworkPhoto").files[0];
-  const status = $("photoAIStatus");
-  const result = $("photoAIResult");
-  const button = $("photoHelpButton");
-
-  if (!file) {
-    status.textContent = "Ladda upp eller ta en bild först.";
-    return;
-  }
-  if (!file.type.startsWith("image/")) {
-    status.textContent = "Filen måste vara en bild.";
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("image", file);
-  formData.append("question", $("photoQuestion").value.trim());
-  formData.append("schoolLevel", $("schoolLevel").value);
-  formData.append("schoolLevelLabel", selectedSchoolLevelLabel());
-
-  button.disabled = true;
-  status.textContent = "AI:n arbetar med uppgiften...";
-  result.classList.add("hidden");
-  result.textContent = "";
-
-  try {
-    const response = await fetch(AI_PHOTO_ENDPOINT, {
-      method: "POST",
-      body: formData
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(data.error || "Servern kunde inte hjälpa till just nu.");
-    }
-
-    result.textContent = data.answer || data.explanation || data.result ||
-      "Servern svarade, men skickade ingen förklaring.";
-    result.classList.remove("hidden");
-    status.textContent = "Klart! Läs igenom förklaringen och försök sedan själv.";
-  } catch (error) {
-    status.textContent = "Kunde inte kontakta AI-tjänsten. " +
-      "AI-servern måste först installeras och kopplas till webbplatsen. (" +
-      error.message + ")";
-  } finally {
-    button.disabled = false;
-  }
-}
-
-function renderAIQuiz(questions) {
-  const container = $("aiQuizResult");
-  container.textContent = "";
-  container.classList.remove("hidden");
-
-  if (!Array.isArray(questions) || questions.length === 0) {
-    container.textContent = "AI-servern skickade inga frågor.";
-    return;
-  }
-
-  questions.forEach((question, index) => {
-    const card = document.createElement("div");
-    card.className = "panel";
-
-    const title = document.createElement("h3");
-    title.textContent = "Fråga " + (index + 1) + ": " +
-      (question.question || question.text || "Fråga saknas");
-    card.append(title);
-
-    const options = Array.isArray(question.options) ? question.options : [];
-    if (options.length) {
-      options.forEach((option, optionIndex) => {
-        const p = document.createElement("p");
-        p.textContent = String.fromCharCode(65 + optionIndex) + ". " + option;
-        card.append(p);
-      });
-    }
-
-    if (question.answer) {
-      const answer = document.createElement("details");
-      const summary = document.createElement("summary");
-      summary.textContent = "Visa facit";
-      const answerText = document.createElement("p");
-      answerText.textContent = question.answer;
-      answer.append(summary, answerText);
-      card.append(answer);
-    }
-
-    if (question.explanation) {
-      const explanation = document.createElement("p");
-      explanation.textContent = "Förklaring: " + question.explanation;
-      card.append(explanation);
-    }
-
-    container.append(card);
-  });
-}
-
-async function generateAIQuiz() {
-  const subject = $("aiQuizSubject").value;
-  const topic = $("aiQuizTopic").value.trim();
-  const count = Number($("aiQuizCount").value);
-  const status = $("aiQuizStatus");
-  const button = $("generateAIQuizButton");
-
-  if (!topic) {
-    status.textContent = "Skriv vad provet ska handla om först.";
-    return;
-  }
-
-  button.disabled = true;
-  status.textContent = "Skapar ett övningsprov...";
-  $("aiQuizResult").classList.add("hidden");
-  $("aiQuizResult").textContent = "";
-
-  try {
-    const response = await fetch(AI_QUIZ_ENDPOINT, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        subject,
-        topic,
-        count,
-        schoolLevel: $("schoolLevel").value,
-        schoolLevelLabel: selectedSchoolLevelLabel(),
-        language: "svenska"
-      })
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(data.error || "Servern kunde inte skapa provet.");
-    }
-
-    renderAIQuiz(data.questions || data.quiz || []);
-    status.textContent = "Ditt övningsprov är klart!";
-  } catch (error) {
-    status.textContent = "Kunde inte kontakta AI-tjänsten. " +
-      "AI-servern måste först installeras och kopplas till webbplatsen. (" +
-      error.message + ")";
-  } finally {
-    button.disabled = false;
-  }
-}
 
 
 </script>
