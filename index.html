@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -92,6 +91,14 @@ label {font-weight:bold;font-size:14px}
 .mode-card strong {display:block;font-size:18px;margin-bottom:8px}
 .mode-card span {font-size:14px;font-weight:normal}
 .answer-box {margin-top:15px}
+.analysis-result {
+  background:var(--light);
+  border-radius:12px;
+  padding:16px;
+  margin:12px 0;
+}
+.analysis-result h3 {margin-top:0}
+.analysis-result li {margin:8px 0}
 @media(max-width:550px) {
   .stats {grid-template-columns:1fr 1fr}
   .brand {font-size:27px}
@@ -140,6 +147,7 @@ label {font-weight:bold;font-size:14px}
   <button onclick="showPage('quiz')">🧠 Skapa quiz</button>
   <button onclick="showPage('saved')">📚 Mina quiz</button>
   <button onclick="showPage('cards')">🃏 Flashcards</button>
+  <button onclick="showPage('afterAnalysis')">🔍 Efteranalys</button>
   <button onclick="showPage('progress')">🏆 Framsteg</button>
   <button onclick="showPage('leaderboard')">🌍 Topplista</button>
 </nav>
@@ -161,6 +169,7 @@ label {font-weight:bold;font-size:14px}
     <button onclick="showPage('homework')">Lägg till en läxa</button>
     <button onclick="showPage('quiz')">Skapa ett quiz</button>
     <button onclick="showPage('saved')">Visa mina sparade quiz</button>
+    <button class="secondary" onclick="showPage('afterAnalysis')">Visa mina efteranalyser</button>
   </div>
 
   <div class="panel">
@@ -197,6 +206,60 @@ label {font-weight:bold;font-size:14px}
   </div>
 </section>
 
+<!-- EFTERANALYS -->
+<section id="afterAnalysis" class="page hidden">
+  <div class="panel" id="analysisIntro">
+    <h2>🔍 Efteranalys</h2>
+    <p class="muted">Reflektera över hur det gick efter en läxa, ett prov eller en uppgift. Det är frivilligt och hjälper dig att förstå vad du kan och vad du behöver träna mer på.</p>
+    <div class="status">
+      <strong>💡 Varför göra en efteranalys?</strong>
+      <p class="muted">När du funderar över vad som gick bra och vad som var svårt blir det lättare att veta hur du ska plugga nästa gång.</p>
+    </div>
+    <label>Vilken uppgift vill du analysera?</label>
+    <select id="analysisTaskSelect"></select>
+    <button onclick="startAnalysisFromSelect()">Börja efteranalys</button>
+    <p class="muted">Du kan också öppna en efteranalys direkt från en färdig läxa.</p>
+  </div>
+
+  <div class="panel hidden" id="analysisFormPanel">
+    <h2>📝 Hur gick det?</h2>
+    <p id="analysisTaskTitle" class="muted"></p>
+
+    <label>Hur tycker du att det gick?</label>
+    <select id="analysisRating">
+      <option value="Jättebra">Jättebra! Jag kunde nästan allt.</option>
+      <option value="Ganska bra">Ganska bra.</option>
+      <option value="Sådär">Sådär. Vissa delar var svåra.</option>
+      <option value="Svårt">Det var svårt. Jag behöver träna mer.</option>
+    </select>
+
+    <label>Vad tyckte du var svårt?</label>
+    <textarea id="analysisDifficult" placeholder="Exempel: Jag hade svårt att komma ihåg begreppen och förklara skillnaden mellan olika lagar."></textarea>
+
+    <label>Vad kunde du bra?</label>
+    <textarea id="analysisEasy" placeholder="Exempel: Jag kunde förklara vad demokrati betyder."></textarea>
+
+    <label>Är det något mer du vill berätta?</label>
+    <textarea id="analysisNotes" placeholder="Skriv här om du vill..."></textarea>
+
+    <button onclick="saveAnalysis()">🔍 Analysera mina svar</button>
+    <button class="secondary" onclick="cancelAnalysis()">Avbryt</button>
+  </div>
+
+  <div class="panel hidden" id="analysisResultPanel">
+    <h2>📊 Din efteranalys</h2>
+    <div id="analysisResult"></div>
+    <button onclick="showPage('afterAnalysis')">Till mina efteranalyser</button>
+    <button class="secondary" onclick="showPage('homework')">Till mina läxor</button>
+  </div>
+
+  <div class="panel">
+    <h2>📚 Mina tidigare efteranalyser</h2>
+    <p class="muted">Här kan du se vad du har lärt dig och vad du har tränat på tidigare.</p>
+    <div id="analysisHistory"></div>
+  </div>
+</section>
+
 <!-- SKAPA QUIZ -->
 <section id="quiz" class="page hidden">
   <div class="panel" id="createQuizPanel">
@@ -212,7 +275,6 @@ Riksdag: Sveriges folkvalda församling."></textarea>
     <p id="quizMessage" class="muted"></p>
   </div>
 
-  <!-- VÄLJ SPELLÄGE -->
   <div class="panel hidden" id="modePanel">
     <h2>🎮 Hur vill du göra quizet?</h2>
     <p class="muted">Välj hur du vill svara på frågorna. Du kan välja olika lägen varje gång du startar quizet.</p>
@@ -229,7 +291,6 @@ Riksdag: Sveriges folkvalda församling."></textarea>
     <button class="secondary" onclick="cancelMode()">← Tillbaka</button>
   </div>
 
-  <!-- SPELA QUIZ -->
   <div class="panel hidden" id="playPanel">
     <h2 id="questionTitle">Ditt quiz</h2>
     <p id="questionText" class="muted"></p>
@@ -292,6 +353,10 @@ Riksdag: Sveriges folkvalda församling."></textarea>
     </div>
     <h3>⭐ Poäng: <span id="progressPoints">0</span></h3>
     <p class="muted">Fortsätt träna och samla nya resultat!</p>
+    <div class="status">
+      <strong>🔍 Efteranalyser: <span id="totalAnalyses">0</span></strong>
+      <p class="muted">Antal gånger du har reflekterat över hur det gick.</p>
+    </div>
   </div>
 </section>
 
@@ -332,6 +397,7 @@ const oldData = loadLocal();
 let words = oldData.words || JSON.parse(localStorage.getItem("pp_words") || "[]");
 let tasks = oldData.tasks || JSON.parse(localStorage.getItem("pp_tasks") || "[]");
 let savedQuizzes = oldData.savedQuizzes || [];
+let afterAnalyses = oldData.afterAnalyses || [];
 let totalCorrect = Number(oldData.totalCorrect ?? localStorage.getItem("pp_correct")) || 0;
 
 let challenge = oldData.challenge || {
@@ -354,13 +420,17 @@ let currentUser = null;
 let username = "";
 let playMode = "multiple";
 let quizFinished = false;
+let currentAnalysisTaskId = null;
 
 // ======================================
 // SPARA OCH LADDA DATA
 // ======================================
 
 function getData() {
-  return {words,tasks,savedQuizzes,totalCorrect,challenge};
+  return {
+    words,tasks,savedQuizzes,afterAnalyses,
+    totalCorrect,challenge
+  };
 }
 
 async function saveData() {
@@ -409,6 +479,7 @@ async function loadUserData() {
     words = d.words || [];
     tasks = d.tasks || [];
     savedQuizzes = d.savedQuizzes || [];
+    afterAnalyses = d.afterAnalyses || [];
     totalCorrect = d.totalCorrect || 0;
     challenge = d.challenge || challenge;
   } else {
@@ -426,6 +497,7 @@ async function loadUserData() {
   update();
   renderCard();
   renderSavedQuizzes();
+  renderAfterAnalyses();
   $("cloudStatus").textContent = "☁️ Dina uppgifter är synkroniserade!";
 }
 
@@ -626,6 +698,10 @@ function showPage(page) {
   if(page==="cards") renderCard();
   if(page==="saved") renderSavedQuizzes();
   if(page==="leaderboard") loadLeaderboard();
+  if(page==="afterAnalysis") {
+    renderAnalysisTaskSelect();
+    renderAfterAnalyses();
+  }
 }
 
 function update() {
@@ -636,6 +712,7 @@ function update() {
   $("totalQuiz").textContent = totalCorrect;
   $("totalTasks").textContent = tasks.filter(t=>t.done).length;
   $("totalWords").textContent = words.length;
+  $("totalAnalyses").textContent = afterAnalyses.length;
 
   $("challengePoints").textContent = challenge.points || 0;
   $("progressPoints").textContent = challenge.points || 0;
@@ -657,6 +734,7 @@ function addTask() {
   }
 
   tasks.push({
+    id:Date.now().toString(),
     name:name,
     subject:$("taskSubject").value,
     date:$("taskDate").value,
@@ -682,6 +760,8 @@ function renderTasks() {
   }
 
   tasks.forEach((t,i) => {
+    if(!t.id) t.id = "old-" + i;
+
     const div = document.createElement("div");
     div.className = "item";
 
@@ -702,15 +782,25 @@ function renderTasks() {
     done.className = "secondary";
     done.textContent = t.done ? "Ångra" : "Klar";
 
-    done.onclick = () => {
+    done.onclick = async () => {
       const wasDone = tasks[i].done;
       tasks[i].done = !wasDone;
 
-      if(!wasDone) completeTaskChallenge();
-
-      saveData();
-      update();
+      if(!wasDone) {
+        completeTaskChallenge();
+        await saveData();
+        update();
+        openAnalysisForTask(tasks[i].id);
+      } else {
+        await saveData();
+        update();
+      }
     };
+
+    const analysis = document.createElement("button");
+    analysis.className = "secondary";
+    analysis.textContent = "🔍 Efteranalys";
+    analysis.onclick = () => openAnalysisForTask(t.id);
 
     const del = document.createElement("button");
     del.className = "danger";
@@ -721,9 +811,296 @@ function renderTasks() {
       update();
     };
 
-    buttons.append(done,del);
+    buttons.append(done,analysis,del);
     div.append(info,buttons);
     $("taskList").append(div);
+  });
+}
+
+// ======================================
+// EFTERANALYS
+// ======================================
+
+function renderAnalysisTaskSelect() {
+  const select = $("analysisTaskSelect");
+  select.innerHTML = "";
+
+  if(!tasks.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "Du har inga läxor ännu";
+    select.append(option);
+    return;
+  }
+
+  tasks.forEach(task => {
+    const option = document.createElement("option");
+    option.value = task.id;
+    option.textContent = task.name + (task.done ? " – Klar" : "");
+    select.append(option);
+  });
+}
+
+function openAnalysisForTask(taskId) {
+  const task = tasks.find(t=>t.id===taskId);
+  if(!task) return;
+
+  currentAnalysisTaskId = taskId;
+  $("analysisTaskTitle").textContent =
+    "Efteranalys för: " + task.name + " (" + task.subject + ")";
+
+  $("analysisRating").value = "Jättebra";
+  $("analysisDifficult").value = "";
+  $("analysisEasy").value = "";
+  $("analysisNotes").value = "";
+
+  $("analysisIntro").classList.add("hidden");
+  $("analysisResultPanel").classList.add("hidden");
+  $("analysisFormPanel").classList.remove("hidden");
+
+  showPage("afterAnalysis");
+  $("analysisIntro").classList.add("hidden");
+  $("analysisFormPanel").classList.remove("hidden");
+  $("analysisTaskTitle").textContent =
+    "Efteranalys för: " + task.name + " (" + task.subject + ")";
+}
+
+function startAnalysisFromSelect() {
+  const id = $("analysisTaskSelect").value;
+  if(!id) {
+    alert("Lägg till en läxa först.");
+    return;
+  }
+  openAnalysisForTask(id);
+}
+
+function cancelAnalysis() {
+  $("analysisFormPanel").classList.add("hidden");
+  $("analysisResultPanel").classList.add("hidden");
+  $("analysisIntro").classList.remove("hidden");
+  currentAnalysisTaskId = null;
+  renderAnalysisTaskSelect();
+}
+
+function getAnalysisKeywords(text) {
+  const stop = new Set([
+    "och","att","det","den","de","en","ett","är","var","som",
+    "på","i","av","för","med","till","om","kan","man","har",
+    "jag","du","vi","ni","min","mitt","mina","inte","men",
+    "så","sig","sin","sitt","sina","hade","vara","varit",
+    "the","a","an","is","are","of","in","to","and","that"
+  ]);
+
+  const words = text.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9åäö\s]/g," ")
+    .split(/\s+/)
+    .filter(w=>w.length>3 && !stop.has(w));
+
+  const counts = {};
+  words.forEach(w=>counts[w]=(counts[w]||0)+1);
+
+  return Object.entries(counts)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,5)
+    .map(entry=>entry[0]);
+}
+
+function createAnalysisResult(rating,difficult,easy,notes) {
+  const allText = [difficult,notes].filter(Boolean).join(" ");
+  const keywords = getAnalysisKeywords(allText);
+  const recommendations = [];
+
+  if(rating==="Jättebra") {
+    recommendations.push("Du upplever att det gick mycket bra. Repetera kort för att hålla kunskaperna färska.");
+  } else if(rating==="Ganska bra") {
+    recommendations.push("Du verkar ha en bra grund. Lägg lite extra tid på de delar som kändes osäkra.");
+  } else if(rating==="Sådär") {
+    recommendations.push("Dela upp området i mindre delar och träna på en sak i taget.");
+  } else {
+    recommendations.push("Börja med grunderna och ta hjälp av anteckningar, exempel och korta quiz.");
+  }
+
+  if(difficult.trim()) {
+    recommendations.push("Gå tillbaka till det du skrev var svårt. Läs förklaringen, försök återberätta med egna ord och testa sedan dig själv utan att titta.");
+  } else {
+    recommendations.push("Nästa gång kan du försöka skriva ner exakt vilka frågor eller moment som kändes svårast.");
+  }
+
+  if(easy.trim()) {
+    recommendations.push("Fortsätt använda det du redan kan som grund när du tränar på svårare delar.");
+  }
+
+  recommendations.push("Gör ett kort quiz om området och repetera de frågor du svarar fel på.");
+
+  let focus = keywords.length
+    ? "Dina svar nämner särskilt: " + keywords.join(", ") + "."
+    : "Du skrev inga tydliga ämnesord i de svåra delarna. Försök gärna beskriva ett par konkreta saker du vill träna på.";
+
+  return {
+    focus,
+    recommendations,
+    summary:rating==="Jättebra"
+      ? "Du känner att det gick riktigt bra. Fortsätt repetera lite då och då!"
+      : rating==="Ganska bra"
+      ? "Du verkar ha förstått mycket, men det finns några delar att stärka."
+      : rating==="Sådär"
+      ? "Du upplevde att vissa delar var utmanande. En tydlig repetitionsplan kan hjälpa."
+      : "Du upplevde uppgiften som svår. Ta det steg för steg och börja med grunderna."
+  };
+}
+
+async function saveAnalysis() {
+  const task = tasks.find(t=>t.id===currentAnalysisTaskId);
+
+  if(!task) {
+    alert("Kunde inte hitta läxan. Välj den igen.");
+    cancelAnalysis();
+    return;
+  }
+
+  const rating = $("analysisRating").value;
+  const difficult = $("analysisDifficult").value.trim();
+  const easy = $("analysisEasy").value.trim();
+  const notes = $("analysisNotes").value.trim();
+
+  if(!difficult && !easy && !notes) {
+    alert("Skriv gärna något om hur det gick innan du analyserar.");
+    return;
+  }
+
+  const result = createAnalysisResult(rating,difficult,easy,notes);
+
+  const analysis = {
+    id:Date.now().toString(),
+    taskId:task.id,
+    taskName:task.name,
+    subject:task.subject,
+    date:new Date().toLocaleDateString("sv-SE"),
+    rating,
+    difficult,
+    easy,
+    notes,
+    result
+  };
+
+  afterAnalyses.unshift(analysis);
+
+  await saveData();
+  update();
+  renderAfterAnalyses();
+  showAnalysisResult(analysis);
+}
+
+function showAnalysisResult(analysis) {
+  $("analysisFormPanel").classList.add("hidden");
+  $("analysisIntro").classList.add("hidden");
+  $("analysisResultPanel").classList.remove("hidden");
+
+  const container = $("analysisResult");
+  container.innerHTML = "";
+
+  const heading = document.createElement("h3");
+  heading.textContent = analysis.taskName + " – " + analysis.date;
+
+  const summary = document.createElement("p");
+  summary.textContent = analysis.result.summary;
+
+  const rating = document.createElement("p");
+  rating.textContent = "Din bedömning: " + analysis.rating;
+
+  const focusBox = document.createElement("div");
+  focusBox.className = "analysis-result";
+  const focusTitle = document.createElement("h3");
+  focusTitle.textContent = "🎯 Områden att tänka på";
+  const focusText = document.createElement("p");
+  focusText.textContent = analysis.result.focus;
+  focusBox.append(focusTitle,focusText);
+
+  const recommendationBox = document.createElement("div");
+  recommendationBox.className = "analysis-result";
+  const recommendationTitle = document.createElement("h3");
+  recommendationTitle.textContent = "📚 Förslag till nästa gång";
+  const list = document.createElement("ul");
+
+  analysis.result.recommendations.forEach(item=>{
+    const li = document.createElement("li");
+    li.textContent = item;
+    list.append(li);
+  });
+
+  recommendationBox.append(recommendationTitle,list);
+
+  container.append(heading,rating,summary,focusBox,recommendationBox);
+
+  if(analysis.difficult) {
+    const difficult = document.createElement("p");
+    difficult.textContent = "Det här tyckte du var svårt: " + analysis.difficult;
+    container.append(difficult);
+  }
+
+  if(analysis.easy) {
+    const easy = document.createElement("p");
+    easy.textContent = "Det här kunde du bra: " + analysis.easy;
+    container.append(easy);
+  }
+
+  const note = document.createElement("p");
+  note.className = "muted";
+  note.textContent = "Analysen bygger på dina egna svar och enkla nyckelordsregler. Den är ett stöd för din planering, inte en automatisk bedömning av dina faktiska provsvar.";
+  container.append(note);
+}
+
+function renderAfterAnalyses() {
+  const container = $("analysisHistory");
+  if(!container) return;
+
+  container.innerHTML = "";
+
+  if(!afterAnalyses.length) {
+    container.textContent = "Du har inte gjort någon efteranalys ännu.";
+    return;
+  }
+
+  afterAnalyses.forEach(analysis=>{
+    const div = document.createElement("div");
+    div.className = "item";
+
+    const info = document.createElement("div");
+    const title = document.createElement("strong");
+    title.textContent = "🔍 " + analysis.taskName;
+
+    const small = document.createElement("small");
+    small.textContent = analysis.date + " • " + analysis.rating;
+
+    info.append(title,small);
+
+    const buttons = document.createElement("div");
+
+    const view = document.createElement("button");
+    view.className = "secondary";
+    view.textContent = "Visa analys";
+    view.onclick = ()=>{
+      showPage("afterAnalysis");
+      showAnalysisResult(analysis);
+    };
+
+    const del = document.createElement("button");
+    del.className = "danger";
+    del.textContent = "Ta bort";
+    del.onclick = async ()=>{
+      if(confirm("Vill du ta bort den här efteranalysen?")) {
+        afterAnalyses = afterAnalyses.filter(a=>a.id!==analysis.id);
+        await saveData();
+        update();
+        renderAfterAnalyses();
+      }
+    };
+
+    buttons.append(view,del);
+    div.append(info,buttons);
+    container.append(div);
   });
 }
 
@@ -958,7 +1335,6 @@ function showNextButton() {
   $("nextQuestion").classList.remove("hidden");
 }
 
-// Normalisera text för att kunna jämföra svar
 function normalizeAnswer(text) {
   return text
     .toLowerCase()
@@ -969,11 +1345,10 @@ function normalizeAnswer(text) {
     .trim();
 }
 
-// Ord som inte hjälper så mycket vid jämförelse
 const stopWords = new Set([
   "och","att","det","den","de","en","ett","är","var","som",
   "på","i","av","för","med","till","om","kan","man","har",
-  "ett","sin","sitt","sina","the","a","an","is","are","of",
+  "sin","sitt","sina","the","a","an","is","are","of",
   "in","to","and","that","this"
 ]);
 
@@ -983,8 +1358,6 @@ function answerWords(text) {
     .filter(word=>word.length>1 && !stopWords.has(word));
 }
 
-// Jämför elevens svar med facit.
-// Det kan godkänna mindre skillnader, men är ingen AI-bedömning.
 function compareWrittenAnswer(userText,correctText) {
   const user = normalizeAnswer(userText);
   const correct = normalizeAnswer(correctText);
@@ -1007,9 +1380,7 @@ function compareWrittenAnswer(userText,correctText) {
 
   const coverage = matched / correctSet.size;
 
-  // Kortare facit kräver mycket hög träffsäkerhet.
   if(correctSet.size <= 3) return coverage >= 0.8;
-
   return coverage >= 0.7;
 }
 
@@ -1040,6 +1411,12 @@ function checkWrittenAnswer() {
 
   showNextButton();
 }
+
+$("writtenAnswer").addEventListener("keydown",event=>{
+  if(event.key==="Enter" && !$("checkWrittenButton").disabled) {
+    checkWrittenAnswer();
+  }
+});
 
 function nextQuizStep() {
   qIndex++;
@@ -1172,6 +1549,7 @@ function addWord() {
 update();
 renderCard();
 renderSavedQuizzes();
+renderAfterAnalyses();
 showPage("home");
 </script>
 </body>
